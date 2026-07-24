@@ -405,3 +405,140 @@ sakshi-adaptive-procedural-intelligence/
 | `middleware/` | Authentication and authorization |
 | `config/` | Environment and application configuration |
 | `utils/` | Helper functions |
+
+# 🚀 Installation
+
+## Prerequisites
+
+Before running the project, ensure you have the following installed:
+
+- Node.js (v18 or above)
+- npm
+- Git
+- Visual Studio Code
+- Supabase Account
+- Google Gemini API Key
+
+---
+
+## Clone the Repository
+
+```bash
+git clone https://github.com/YuvasriPraksh/sakshi-adaptive-procedural-intelligence.git
+```
+
+```bash
+cd sakshi-adaptive-procedural-intelligence
+```
+
+---
+
+## Frontend Setup
+
+```bash
+cd client
+```
+
+```bash
+npm install
+```
+
+```bash
+npm run dev
+```
+
+The frontend will start at:
+
+```
+http://localhost:5173
+```
+
+---
+
+## Backend Setup
+
+Open another terminal.
+
+```bash
+cd server
+```
+
+```bash
+npm install
+```
+
+Create a `.env` file and configure the following environment variables:
+
+```env
+PORT=5000
+
+SUPABASE_URL=your_supabase_url
+
+SUPABASE_ANON_KEY=your_supabase_anon_key
+
+JWT_SECRET=your_secret_key
+
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+Start the backend:
+
+```bash
+npm start
+```
+
+or
+
+```bash
+npm run dev
+```
+
+The backend will run at:
+
+```
+http://localhost:5000
+```
+
+---
+
+## Access the Application
+
+Open your browser and visit:
+
+```
+http://localhost:5173
+```
+
+---
+
+## Default Project Structure
+
+```
+Frontend : React + Vite
+Backend  : Node.js + Express
+Database : Supabase (PostgreSQL)
+AI        : Google Gemini API
+```
+
+---
+
+# 🚀 Future Enhancements
+
+The current prototype focuses on streamlining the **pre-court POCSO investigation process**. In future versions, SAKSHI can be extended with additional capabilities to support broader investigative workflows and improve procedural intelligence.
+
+## Planned Enhancements
+
+- Support multiple criminal case types such as Cybercrime, Theft, Road Accidents, Domestic Violence, and Homicide.
+- Real-time integration with Police, Hospital, CWC, FSL, and Court information systems.
+- AI-powered procedural risk prediction and early warning alerts.
+- Mobile application for field officers with offline synchronization.
+- SMS, Email, and WhatsApp notifications for authorized stakeholders.
+- Advanced analytics dashboard for supervisors and administrators.
+- Multilingual support to improve accessibility across different regions.
+- Secure document management and digital evidence tracking.
+- Predictive investigation timelines using AI-based insights.
+- Integration with government e-Governance platforms for seamless information exchange.
+
+### Long-Term Vision
+
+SAKSHI aims to evolve into a scalable procedural intelligence platform that can assist multiple agencies in managing criminal investigations efficiently while improving transparency, accountability, and coordination across the justice system.
