@@ -48,6 +48,14 @@ export const ROUTES = {
   SETTINGS_API_KEYS: "/settings/api-keys",
   PROFILE:           "/profile",
 
+  // Evidence Management (Chain of Custody)
+  EVIDENCE:               "/evidence",
+  EVIDENCE_DETAIL:        "/evidence/:evidenceId",
+  EVIDENCE_REGISTER:      "/evidence/register",
+  EVIDENCE_TRANSFER:      "/evidence/:evidenceId/transfer",
+  EVIDENCE_ANALYTICS:     "/evidence/analytics",
+  EVIDENCE_SECURITY:      "/evidence/security",
+
   // Errors
   NOT_FOUND:         "*",
 } as const;

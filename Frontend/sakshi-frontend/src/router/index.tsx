@@ -23,6 +23,12 @@ const AIAssistantPage        = lazy(() => import("@/pages/ai/AIAssistantPage"));
 const AnalyticsPage          = lazy(() => import("@/pages/analytics/AnalyticsPage"));
 const ReportsPage            = lazy(() => import("@/pages/reports/ReportsPage"));
 const NotificationsPage      = lazy(() => import("@/pages/notifications/NotificationsPage"));
+const EvidenceDashboard      = lazy(() => import("@/pages/evidence/EvidenceDashboard"));
+const EvidenceDetailPage     = lazy(() => import("@/pages/evidence/EvidenceDetailPage"));
+const EvidenceRegisterPage   = lazy(() => import("@/pages/evidence/EvidenceRegisterPage"));
+const EvidenceTransferPage   = lazy(() => import("@/pages/evidence/EvidenceTransferPage"));
+const EvidenceAnalyticsPage  = lazy(() => import("@/pages/evidence/EvidenceAnalyticsPage"));
+const EvidenceSecurityPage   = lazy(() => import("@/pages/evidence/EvidenceSecurityPage"));
 const AuditPage              = lazy(() => import("@/pages/audit/AuditPage"));
 const DocumentsPage          = lazy(() => import("@/pages/documents/DocumentsPage"));
 const SettingsPage           = lazy(() => import("@/pages/settings/SettingsPage"));
@@ -73,6 +79,12 @@ const router = createBrowserRouter([
       { path: ROUTES.ANALYTICS,            element: <S><AnalyticsPage /></S> },
       { path: ROUTES.REPORTS,              element: <S><ReportsPage /></S> },
       { path: ROUTES.NOTIFICATIONS,        element: <S><NotificationsPage /></S> },
+      { path: ROUTES.EVIDENCE,             element: <S><EvidenceDashboard /></S> },
+      { path: ROUTES.EVIDENCE_REGISTER,    element: <S><EvidenceRegisterPage /></S> },
+      { path: ROUTES.EVIDENCE_ANALYTICS,   element: <S><EvidenceAnalyticsPage /></S> },
+      { path: ROUTES.EVIDENCE_SECURITY,    element: <S><EvidenceSecurityPage /></S> },
+      { path: ROUTES.EVIDENCE_DETAIL,      element: <S><EvidenceDetailPage /></S> },
+      { path: ROUTES.EVIDENCE_TRANSFER,    element: <S><EvidenceTransferPage /></S> },
       { path: ROUTES.AUDIT,                element: <S><AuditPage /></S> },
       { path: ROUTES.DOCUMENTS,            element: <S><DocumentsPage /></S> },
       { path: ROUTES.DOCUMENT_DETAIL,      element: <S><DocumentsPage /></S> },

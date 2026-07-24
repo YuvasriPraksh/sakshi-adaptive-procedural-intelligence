@@ -3,6 +3,14 @@ import { createRoot } from "react-dom/client";
 import { App } from "./app/App";
 import "./styles/globals.css";
 
+// ─── Set page title ────────────────────────────────────────────────────────────
+document.title = "SAKSHI — AI-Powered POCSO Intelligence Platform";
+
 const root = document.getElementById("root");
-if (!root) throw new Error('Root element #root not found');
-createRoot(root).render(<StrictMode><App /></StrictMode>);
+if (!root) throw new Error('Root element #root not found in index.html');
+
+createRoot(root).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);

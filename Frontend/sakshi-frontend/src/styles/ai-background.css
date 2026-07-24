@@ -1,0 +1,106 @@
+.ai-bg-root {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* sit behind everything */
+  pointer-events: none;
+}
+.ai-bg-root canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* small performance tweak for mobile */
+@media (max-width: 768px) {
+  .ai-bg-root {
+    opacity: 0.9;
+    filter: saturate(0.95) blur(0);
+  }
+}
+
+/* CSS-only visual layers for graceful fallback */
+.ai-bg-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.ai-core {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 160px;
+  height: 160px;
+  transform: translate(-50%, -50%);
+  border-radius: 12px;
+  background: radial-gradient(ellipse at center, rgba(0,255,213,0.10), rgba(0,0,0,0));
+  box-shadow: 0 0 48px 8px rgba(0,255,213,0.03), inset 0 0 20px rgba(0,255,213,0.06);
+  animation: core-float 8s ease-in-out infinite;
+}
+
+.ai-rings::before,
+.ai-rings::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  width: 260px;
+  height: 260px;
+  box-shadow: 0 0 40px 2px rgba(0,255,213,0.06) inset, 0 0 48px 8px rgba(0,255,213,0.02);
+  opacity: 0.18;
+  animation: ring-rotate 12s linear infinite;
+}
+.ai-rings::after { width: 340px; height: 340px; animation-direction: reverse; opacity: 0.12; }
+
+.ai-beam {
+  position: absolute;
+  left: 8%;
+  top: 30%;
+  width: 8px;
+  height: 60vh;
+  transform: translateY(-20%);
+  background: linear-gradient(180deg, rgba(0,255,115,0.22), rgba(0,255,115,0.06));
+  filter: blur(8px);
+  opacity: 0.26;
+  animation: beam-pulse 3.6s ease-in-out infinite;
+}
+
+.ai-particles {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(0,255,213,0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.06;
+  mix-blend-mode: screen;
+  animation: particles-float 24s linear infinite;
+}
+
+.ai-grid {
+  position: absolute;
+  left: 0; right: 0; bottom: -10%;
+  height: 60%;
+  background-image: linear-gradient(rgba(0,255,213,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,213,0.02) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px;
+  opacity: 0.06;
+  transform: perspective(800px) rotateX(70deg) translateZ(-40px);
+  animation: grid-scroll 10s linear infinite;
+}
+
+@keyframes core-float {
+  0% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-8px) rotate(1deg); }
+  100% { transform: translate(-50%, -50%) translateY(0); }
+}
+@keyframes ring-rotate { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes beam-pulse {
+  0% { opacity: 0.18; transform: translateY(-20%) scaleY(1); }
+  50% { opacity: 0.28; transform: translateY(-18%) scaleY(1.06); }
+  100% { opacity: 0.18; transform: translateY(-20%) scaleY(1); }
+}
+@keyframes particles-float { to { transform: translateY(-30px); } }
+@keyframes grid-scroll { from { background-position: 0 0, 0 0 } to { background-position: -320px 0, -320px 0 } }
+

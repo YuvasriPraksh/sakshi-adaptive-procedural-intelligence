@@ -10,33 +10,34 @@ import { ICON_MAP } from "@/constants/icons";
 import { ROUTES } from "@/router/routes";
 import type { NavItem } from "@/types/navigation.types";
 
-// ─── Nav data ─────────────────────────────────────────────────────────────────
+// ─── Navigation items ──────────────────────────────────────────────────────────
 export const MAIN_NAV: NavItem[] = [
-  { label: "Dashboard",    href: ROUTES.DASHBOARD,     icon: "dashboard"     },
-  { label: "Cases",        href: ROUTES.CASES,         icon: "cases"         },
-  { label: "Timeline",     href: ROUTES.TIMELINE,      icon: "timeline"      },
-  { label: "Proc. Graph",  href: ROUTES.GRAPH,         icon: "graph"         },
-  { label: "AI Assistant", href: ROUTES.AI_ASSISTANT,  icon: "ai"            },
-  { label: "Analytics",    href: ROUTES.ANALYTICS,     icon: "analytics"     },
-  { label: "Reports",      href: ROUTES.REPORTS,       icon: "audit"         },
-  { label: "Documents",    href: ROUTES.DOCUMENTS,     icon: "documents"     },
-  { label: "Audit Trail",  href: ROUTES.AUDIT,         icon: "audit"         },
-  { label: "Notifications",href: ROUTES.NOTIFICATIONS, icon: "notifications", badge: true },
+  { label: "Dashboard",     href: ROUTES.DASHBOARD,      icon: "dashboard"     },
+  { label: "Cases",         href: ROUTES.CASES,          icon: "cases"         },
+  { label: "Timeline",      href: ROUTES.TIMELINE,       icon: "timeline"      },
+  { label: "Proc. Graph",   href: ROUTES.GRAPH,          icon: "graph"         },
+  { label: "AI Assistant",  href: ROUTES.AI_ASSISTANT,   icon: "ai"            },
+  { label: "Analytics",     href: ROUTES.ANALYTICS,      icon: "analytics"     },
+  { label: "Reports",       href: ROUTES.REPORTS,        icon: "reports"       },
+  { label: "Documents",     href: ROUTES.DOCUMENTS,      icon: "documents"     },
+  { label: "Audit Trail",   href: ROUTES.AUDIT,          icon: "audit"         },
+  { label: "Evidence",      href: ROUTES.EVIDENCE,        icon: "evidence"      },
+  { label: "Notifications", href: ROUTES.NOTIFICATIONS,   icon: "notifications", badge: true },
 ];
 
 export const SETTINGS_NAV: NavItem[] = [
-  { label: "Settings",     href: ROUTES.SETTINGS,           icon: "settings" },
-  { label: "Profile",      href: ROUTES.PROFILE,            icon: "supervisor" },
+  { label: "Settings", href: ROUTES.SETTINGS, icon: "settings"    },
+  { label: "Profile",  href: ROUTES.PROFILE,  icon: "supervisor"  },
 ];
 
-// ─── Single item ──────────────────────────────────────────────────────────────
-interface NavItemProps {
-  item:       NavItem;
-  collapsed:  boolean;
-  unread?:    number;
+// ─── Single nav item ───────────────────────────────────────────────────────────
+interface SidebarItemProps {
+  item:     NavItem;
+  collapsed: boolean;
+  unread?:  number;
 }
 
-function SidebarItem({ item, collapsed, unread }: NavItemProps) {
+function SidebarItem({ item, collapsed, unread }: SidebarItemProps) {
   const IconComp = ICON_MAP[item.icon] ?? ICON_MAP.dashboard;
   const location = useLocation();
   const isActive = location.pathname === item.href ||
@@ -46,18 +47,38 @@ function SidebarItem({ item, collapsed, unread }: NavItemProps) {
     <NavLink
       to={item.href}
       className={cn(
-        "nav-item group",
+        "nav-item group relative",
         isActive ? "nav-item-active" : "nav-item-inactive",
         collapsed && "justify-center px-0",
       )}
       aria-label={item.label}
+      aria-current={isActive ? "page" : undefined}
     >
-      <IconComp className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-white" : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground")} />
+      {/* Active indicator bar */}
+      {isActive && (
+        <motion.span
+          layoutId="active-nav-bar"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-white/70"
+          transition={{ duration: 0.2 }}
+        />
+      )}
+
+      <IconComp
+        className={cn(
+          "h-[18px] w-[18px] shrink-0 transition-colors",
+          isActive
+            ? "text-white"
+            : "text-sidebar-foreground/60 group-hover:text-sidebar-foreground",
+        )}
+      />
+
       {!collapsed && (
         <>
-          <span className="flex-1 truncate text-xs">{item.label}</span>
+          <span className="flex-1 truncate text-xs font-medium">{item.label}</span>
           {item.badge && unread !== undefined && unread > 0 && (
-            <StatusBadge variant="danger" size="xs">{unread > 99 ? "99+" : unread}</StatusBadge>
+            <StatusBadge variant="danger" size="xs">
+              {unread > 99 ? "99+" : unread}
+            </StatusBadge>
           )}
         </>
       )}
@@ -69,42 +90,49 @@ function SidebarItem({ item, collapsed, unread }: NavItemProps) {
   ) : inner;
 }
 
-// ─── Group ────────────────────────────────────────────────────────────────────
+// ─── Nav group ─────────────────────────────────────────────────────────────────
 interface NavGroupProps {
-  label:      string;
-  children:   ReactNode;
-  collapsed:  boolean;
+  label:        string;
+  children:     ReactNode;
+  collapsed:    boolean;
   collapsible?: boolean;
 }
 
 function NavGroup({ label, children, collapsed, collapsible = false }: NavGroupProps) {
   const [open, setOpen] = useState(true);
+
   return (
     <div className="space-y-0.5">
       {!collapsed && (
         <button
           onClick={collapsible ? () => setOpen(v => !v) : undefined}
           className={cn(
-            "flex w-full items-center justify-between px-3 py-1.5",
-            collapsible && "cursor-pointer hover:text-sidebar-foreground",
+            "flex w-full items-center justify-between px-3 py-1",
+            collapsible && "cursor-pointer",
           )}
           aria-expanded={collapsible ? open : undefined}
         >
-          <span className="text-2xs font-semibold uppercase tracking-widest text-sidebar-foreground/40">
+          <span className="text-2xs font-bold uppercase tracking-widest text-sidebar-foreground/35 select-none">
             {label}
           </span>
           {collapsible && (
-            <ChevronDown className={cn("h-3 w-3 text-sidebar-foreground/40 transition-transform", !open && "-rotate-90")} />
+            <ChevronDown
+              className={cn(
+                "h-3 w-3 text-sidebar-foreground/35 transition-transform duration-200",
+                !open && "-rotate-90",
+              )}
+            />
           )}
         </button>
       )}
+
       <AnimatePresence initial={false}>
         {(!collapsible || open) && (
           <motion.div
             initial={collapsible ? { height: 0, opacity: 0 } : false}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
             className="overflow-hidden space-y-0.5"
           >
             {children}
@@ -115,7 +143,7 @@ function NavGroup({ label, children, collapsed, collapsible = false }: NavGroupP
   );
 }
 
-// ─── Main Sidebar ─────────────────────────────────────────────────────────────
+// ─── Main Sidebar ──────────────────────────────────────────────────────────────
 export interface SidebarProps {
   unreadNotifications?: number;
 }
@@ -127,35 +155,53 @@ export function Sidebar({ unreadNotifications = 0 }: SidebarProps) {
   return (
     <motion.aside
       animate={{ width: collapsed ? 64 : 260 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="flex flex-col h-full bg-[hsl(var(--sidebar-bg))] border-r border-[hsl(var(--sidebar-border))] overflow-hidden shrink-0"
+      transition={{ duration: 0.22, ease: "easeInOut" }}
+      className={cn(
+        "flex flex-col h-full shrink-0 overflow-hidden",
+        "bg-[hsl(var(--sidebar-bg))] border-r border-[hsl(var(--sidebar-border))]",
+      )}
       aria-label="Main navigation"
     >
-      {/* Logo */}
-      <div className={cn(
-        "flex items-center border-b border-[hsl(var(--sidebar-border))]",
-        collapsed ? "justify-center h-[60px]" : "px-4 h-[60px] gap-3",
-      )}>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-white font-bold text-sm select-none">
+      {/* ── Logo ── */}
+      <div
+        className={cn(
+          "flex items-center border-b border-[hsl(var(--sidebar-border))] shrink-0",
+          collapsed ? "justify-center h-[60px]" : "px-4 h-[60px] gap-3",
+        )}
+      >
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-white font-extrabold text-sm select-none shadow-sm">
           S
         </div>
         {!collapsed && (
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-white truncate">SAKSHI</p>
-            <p className="text-2xs text-sidebar-foreground/50 truncate">Intelligence Platform</p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="min-w-0"
+          >
+            <p className="text-sm font-bold text-white leading-tight truncate">SAKSHI</p>
+            <p className="text-2xs text-sidebar-foreground/40 truncate">Intelligence Platform</p>
+          </motion.div>
         )}
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-4 no-scrollbar">
+      {/* ── Navigation ── */}
+      <nav
+        className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3 space-y-4 no-scrollbar"
+        role="navigation"
+        aria-label="Main menu"
+      >
         <NavGroup label="Main" collapsed={collapsed}>
           {MAIN_NAV.map(item => (
-            <SidebarItem key={item.href} item={item} collapsed={collapsed} unread={item.badge ? unreadNotifications : undefined} />
+            <SidebarItem
+              key={item.href}
+              item={item}
+              collapsed={collapsed}
+              unread={item.badge ? unreadNotifications : undefined}
+            />
           ))}
         </NavGroup>
 
-        <div className="divider !my-2 !border-sidebar-border/60" />
+        <div className="mx-3 border-t border-sidebar-border/40" />
 
         <NavGroup label="Account" collapsed={collapsed}>
           {SETTINGS_NAV.map(item => (
@@ -164,18 +210,22 @@ export function Sidebar({ unreadNotifications = 0 }: SidebarProps) {
         </NavGroup>
       </nav>
 
-      {/* Collapse toggle */}
-      <div className="border-t border-[hsl(var(--sidebar-border))] p-2">
+      {/* ── Collapse toggle ── */}
+      <div className="border-t border-[hsl(var(--sidebar-border))] p-2 shrink-0">
         <Tooltip content={collapsed ? "Expand sidebar" : "Collapse sidebar"} side="right">
           <button
             onClick={toggleSidebar}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             className={cn(
-              "flex w-full items-center rounded-md px-2 py-2 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 transition-colors",
+              "flex w-full items-center rounded-md px-2 py-2",
+              "text-sidebar-foreground/50 hover:text-sidebar-foreground",
+              "hover:bg-sidebar-accent/50 transition-colors",
               collapsed ? "justify-center" : "gap-2",
             )}
           >
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : (
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
               <>
                 <ChevronLeft className="h-4 w-4" />
                 <span className="text-xs">Collapse</span>

@@ -1,22 +1,19 @@
 import { cn } from "@/lib/utils";
 
-export interface FooterProps {
-  className?: string;
-}
-
-const year = new Date().getFullYear();
-
-export function Footer({ className }: FooterProps) {
+export function Footer({ className }: { className?: string }) {
   return (
     <footer
       className={cn(
-        "h-[48px] flex items-center justify-between px-6",
-        "border-t border-border bg-card/50 text-xs text-muted-foreground",
+        "shrink-0 h-10 flex items-center justify-between px-4 sm:px-6",
+        "border-t border-border bg-card/60 text-2xs text-muted-foreground/70",
         className,
       )}
+      aria-label="Application footer"
     >
-      <span>© {year} SAKSHI — AI-Powered Procedural Intelligence Platform</span>
-      <span className="hidden sm:block">Ministry of Women &amp; Child Development · POCSO Investigation Support</span>
+      <span>© {new Date().getFullYear()} SAKSHI · POCSO Intelligence Platform</span>
+      <span className="hidden sm:block">
+        Ministry of Women &amp; Child Development · Government of India
+      </span>
     </footer>
   );
 }
