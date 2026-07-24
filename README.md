@@ -229,3 +229,95 @@ Features include:
 | Package Manager | npm | Dependency management |
 | Frontend Deployment | Vercel | Deploy React application |
 | Backend Deployment | Render | Deploy Express backend |
+
+# 🕸️ Dynamic Procedural Obligation Graph (D-POG)
+
+## What is D-POG?
+
+The **Dynamic Procedural Obligation Graph (D-POG)** is the core intelligence engine of SAKSHI. It models the pre-court POCSO investigation process as a dynamic graph, where each node represents a mandatory procedural stage and each edge represents the dependency between investigation activities.
+
+Unlike traditional linear workflows, D-POG continuously evaluates the procedural state of a case, identifies blocked or incomplete stages, and guides investigators toward the next legally required action.
+
+---
+
+## Why D-POG?
+
+Traditional investigation tracking systems mainly display the current status of a case but do not explain **why progress has stopped** or **which procedural dependency is preventing the next step**.
+
+D-POG solves this by visualizing the complete procedural workflow and automatically identifying dependencies, pending obligations, and investigation bottlenecks.
+
+---
+
+## How D-POG Works
+
+```text
+Complaint Received
+        │
+        ▼
+FIR Registration
+        │
+        ▼
+Victim Statement
+        │
+        ▼
+Medical Examination
+        │
+        ▼
+CWC Assessment
+        │
+        ▼
+Evidence Collection
+        │
+        ▼
+FSL Analysis
+        │
+        ▼
+Witness Statements
+        │
+        ▼
+Charge Sheet Preparation
+        │
+        ▼
+Submitted to Court
+```
+
+Each stage becomes active only when all required prerequisite procedures have been completed.
+
+---
+
+## Key Capabilities
+
+- ✅ Models the complete pre-court investigation workflow
+- ✅ Tracks procedural dependencies between investigation stages
+- ✅ Detects blocked or incomplete procedural steps
+- ✅ Visualizes investigation progress in real time
+- ✅ Recommends the next procedural action
+- ✅ Supports AI-powered procedural guidance
+- ✅ Improves coordination among Police, Hospital, CWC, and FSL
+
+---
+
+## Integration with AI
+
+The D-POG works together with the Gemini AI Assistant.
+
+The AI analyzes the current graph state to:
+
+- Explain investigation delays
+- Identify missing procedural requirements
+- Recommend the next legal step
+- Generate investigation summaries
+- Answer procedural workflow queries
+
+---
+
+## Benefits
+
+- Faster investigation coordination
+- Improved procedural compliance
+- Better inter-department collaboration
+- Reduced investigation delays
+- Enhanced transparency
+- Improved decision support for investigators
+
+
