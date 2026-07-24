@@ -648,3 +648,129 @@ http://localhost:5000/api
   "error": {}
 }
 ```
+
+
+
+# 🗄️ Database Design
+
+SAKSHI uses **Supabase (PostgreSQL)** as its primary database to securely store case information, user details, investigation workflow updates, notifications, and audit logs. The database is designed using a relational model to ensure data consistency, integrity, and efficient retrieval during the pre-court investigation process.
+
+---
+
+## Database Tables
+
+| Table Name | Description |
+|------------|-------------|
+| `users` | Stores user information, roles, and authentication details |
+| `cases` | Stores case details and investigation metadata |
+| `workflow_stages` | Defines all procedural investigation stages |
+| `case_stage_updates` | Tracks the progress of each investigation stage |
+| `notifications` | Stores alerts and system notifications |
+| `audit_logs` | Maintains a history of all procedural updates |
+| `public_tracking` | Stores limited information for the public tracking portal |
+
+---
+
+## Database Schema Overview
+
+### 👤 Users
+- User ID
+- Name
+- Email
+- Role (Police, Hospital, CWC, FSL)
+- Password (Encrypted)
+- Created At
+
+---
+
+### 📂 Cases
+- Case ID
+- FIR Number
+- Case Title
+- Victim ID (Protected)
+- Assigned Officer
+- Current Stage
+- Status
+- Created Date
+
+---
+
+### 🔄 Workflow Stages
+- Stage ID
+- Stage Name
+- Sequence Order
+- Description
+- Required Dependencies
+
+---
+
+### 📋 Case Stage Updates
+- Update ID
+- Case ID
+- Stage ID
+- Updated By
+- Status
+- Remarks
+- Timestamp
+
+---
+
+### 🔔 Notifications
+- Notification ID
+- User ID
+- Message
+- Notification Type
+- Read Status
+- Created At
+
+---
+
+### 📝 Audit Logs
+- Log ID
+- Case ID
+- User ID
+- Action Performed
+- Timestamp
+
+---
+
+### 🌐 Public Tracking
+- Tracking ID
+- Case ID
+- Public Status
+- Current Investigation Stage
+- Last Updated
+
+---
+
+## Relationships
+
+- One User can manage multiple Cases.
+- One Case contains multiple Workflow Stage Updates.
+- Each Workflow Stage can have multiple dependency relationships.
+- Each Case generates multiple Notifications.
+- Every update is recorded in the Audit Logs for accountability.
+- Public Tracking displays only non-confidential investigation information.
+
+---
+
+## Security Features
+
+- Role-Based Access Control (RBAC)
+- Encrypted Authentication using JWT
+- Secure Supabase Authentication
+- Audit Logging for all updates
+- Restricted access to sensitive case information
+- Public portal exposes only authorized case progress
+
+---
+
+## Database Technology
+
+| Component | Technology |
+|-----------|------------|
+| Database | PostgreSQL |
+| Platform | Supabase |
+| Authentication | Supabase Auth + JWT |
+| Storage | Supabase Storage |
+| Security | Row-Level Security (RLS) |
