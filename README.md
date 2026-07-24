@@ -1217,3 +1217,44 @@ The SAKSHI prototype demonstrates how AI-assisted procedural intelligence can st
 > **Note:** The credentials above are placeholder demo accounts for showcasing the prototype. Replace them with your actual demo credentials before the final presentation.
 ## 🔗 Live Demo
 Demo : https://case-workflow-portal.preview.emergentagent.com/?utm_source=share
+
+
+
+# 📚 References
+
+## Official Documentation
+
+1. React Documentation – https://react.dev/
+2. Vite Documentation – https://vitejs.dev/
+3. Tailwind CSS Documentation – https://tailwindcss.com/docs
+4. Node.js Documentation – https://nodejs.org/docs
+5. Express.js Documentation – https://expressjs.com/
+6. Supabase Documentation – https://supabase.com/docs
+7. PostgreSQL Documentation – https://www.postgresql.org/docs/
+8. Google AI Studio (Gemini API) – https://ai.google.dev/
+9. React Flow Documentation – https://reactflow.dev/
+10. Recharts Documentation – https://recharts.org/
+11. JWT (JSON Web Token) – https://jwt.io/
+12. Git Documentation – https://git-scm.com/doc
+13. GitHub Documentation – https://docs.github.com/
+14. Postman Learning Center – https://learning.postman.com/
+
+---
+
+## Legal & Domain References
+
+15. Protection of Children from Sexual Offences (POCSO) Act, 2012
+16. Ministry of Women and Child Development, Government of India
+17. National Commission for Protection of Child Rights (NCPCR)
+18. Child Welfare Committee (CWC) Guidelines
+19. Criminal Procedure Code (CrPC) – Relevant investigation procedures
+
+---
+
+## Research Inspiration
+
+- AI-assisted Decision Support Systems
+- Workflow Management Systems
+- Procedural Intelligence Systems
+- Case Management Systems
+- Explainable Artificial Intelligence (XAI)
