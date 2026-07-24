@@ -1059,3 +1059,86 @@ SAKSHI was tested in a modern web browser environment using:
 | Compatibility Testing | ✅ Passed |
 
 The prototype successfully demonstrated all major functionalities, including role-based access, investigation workflow management, AI-assisted procedural guidance, Dynamic Procedural Obligation Graph (D-POG) visualization, and secure database integration.
+
+
+# 🚀 Future Scope
+
+The current version of **SAKSHI** is a prototype focused on improving the **pre-court investigation workflow for POCSO cases**. In future releases, the platform can be expanded into a comprehensive procedural intelligence system supporting multiple investigation domains and advanced AI capabilities.
+
+## Future Enhancements
+
+### 🔹 Multi-Case Support
+Extend the platform to support additional criminal investigations, including:
+- Cybercrime
+- Theft and Robbery
+- Domestic Violence
+- Homicide
+- Road Traffic Accident Cases
+- Financial Fraud
+
+---
+
+### 🔹 Government System Integration
+Integrate with government digital platforms to enable secure data exchange and reduce manual coordination between departments.
+
+Potential integrations include:
+- Police Information Systems
+- Hospital Information Systems
+- Forensic Laboratory Systems
+- Child Welfare Committee (CWC) Portals
+- Court Case Management Systems
+
+---
+
+### 🔹 Advanced AI Capabilities
+Enhance AI assistance with:
+- Procedural risk prediction
+- Intelligent investigation planning
+- Automated document summarization
+- Context-aware procedural recommendations
+- Investigation analytics and reporting
+
+---
+
+### 🔹 Mobile Application
+Develop Android and iOS applications to enable investigators to:
+- Update case progress in real time
+- Receive instant notifications
+- Access investigation details securely from the field
+
+---
+
+### 🔹 Real-Time Notification System
+Implement secure notifications through:
+- SMS
+- Email
+- Push Notifications
+- WhatsApp Business API
+
+to keep stakeholders informed about important procedural updates and deadlines.
+
+---
+
+### 🔹 Advanced Analytics Dashboard
+Provide supervisory officers with dashboards showing:
+- Investigation progress across districts
+- Pending procedural obligations
+- Delay analysis
+- Performance metrics
+- Investigation trends
+
+---
+
+### 🔹 Multilingual Support
+Support multiple Indian languages to improve accessibility and usability across different regions.
+
+---
+
+### 🔹 Secure Digital Evidence Management
+Enable secure uploading, storage, verification, and controlled sharing of investigation documents and digital evidence.
+
+---
+
+## Long-Term Vision
+
+The long-term vision of **SAKSHI** is to become a scalable AI-powered procedural intelligence platform that assists investigative agencies in managing criminal investigations through workflow automation, intelligent procedural guidance, secure collaboration, and transparent case monitoring while maintaining privacy, accountability, and procedural compliance.
