@@ -48,3 +48,121 @@ To further assist investigators, **Gemini AI** analyzes the current workflow and
 The platform also includes a **Public Case Tracking Portal**, allowing authorized citizens to securely view the current investigation stage and overall progress without exposing confidential investigation details, thereby improving transparency while protecting victim privacy.
 
 By combining workflow visualization, AI-assisted decision support, secure role-based access, and centralized case management, SAKSHI helps investigative agencies coordinate more effectively, reduce procedural delays, and improve the efficiency of pre-court POCSO investigations.
+
+
+# ✨ Key Features
+
+## 🔐 1. Secure Role-Based Login
+Different stakeholders access the system through secure role-based authentication.
+
+**Supported Roles**
+- 👮 Police Officer
+- 🏥 Hospital Staff
+- 👨‍👩‍👧 Child Welfare Committee (CWC)
+- 🧪 FSL Officer
+- 👤 Public User
+
+---
+
+## 📂 2. Centralized Case Management
+All investigation activities are managed from a single platform, eliminating fragmented records and improving coordination between departments.
+
+**Capabilities**
+- Register new cases
+- View assigned cases
+- Update investigation stages
+- Track case progress
+
+---
+
+## 🕸️ 3. Dynamic Procedural Obligation Graph (D-POG)
+The core innovation of SAKSHI.
+
+Instead of displaying investigation as a simple checklist, the system represents every investigation stage as an interconnected procedural graph.
+
+It helps users to:
+- Visualize investigation workflow
+- Understand task dependencies
+- Detect blocked procedures
+- Identify pending mandatory steps
+- Track investigation progress
+
+---
+
+## ⏳ 4. Investigation Timeline
+Displays the complete chronological journey of a case from complaint registration until charge sheet submission.
+
+The timeline highlights:
+- Completed stages
+- Current investigation stage
+- Pending activities
+- Expected next step
+
+---
+
+## 🤖 5. AI Investigation Assistant
+Powered by Gemini AI to assist investigators during the investigation process.
+
+The AI can:
+- Explain investigation delays
+- Recommend the next procedural step
+- Identify missing procedural requirements
+- Answer workflow-related questions
+- Generate investigation summaries
+
+---
+
+## 🚨 6. Smart Alerts & Notifications
+The system continuously monitors procedural progress and alerts users whenever attention is required.
+
+Examples include:
+- Missing investigation steps
+- Pending approvals
+- Delayed activities
+- Upcoming procedural deadlines
+
+---
+
+## 📊 7. Investigation Readiness Score
+SAKSHI calculates a readiness score based on completed procedural obligations.
+
+This helps officers understand:
+- Overall investigation completeness
+- Missing requirements
+- Readiness before charge sheet submission
+
+---
+
+## 📈 8. Interactive Dashboard
+Each stakeholder gets a personalized dashboard showing real-time investigation insights.
+
+Dashboard includes:
+- Active cases
+- Investigation progress
+- Pending actions
+- Timeline
+- Alerts
+- AI recommendations
+
+---
+
+## 🌐 9. Public Case Tracking Portal
+Citizens can securely track the status of their registered case without accessing confidential investigation information.
+
+Public users can view:
+- Current investigation stage
+- Overall progress
+- Recent updates
+- Expected next step
+
+---
+
+## 🔒 10. Privacy & Secure Data Management
+SAKSHI follows a privacy-focused design.
+
+Features include:
+- Role-based access control
+- Secure authentication
+- Protected investigation records
+- Audit logging of procedural updates
+- Restricted access to sensitive information
