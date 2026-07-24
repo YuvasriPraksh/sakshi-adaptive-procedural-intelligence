@@ -979,3 +979,83 @@ These credentials are never hardcoded into the source code.
 | AI Security | Recommendation-only AI |
 | Audit Trail | Activity Logging |
 | Secrets Management | Environment Variables (.env) |
+
+# 🧪 Testing
+
+To ensure the reliability and functionality of SAKSHI, the prototype was tested across its core modules, including authentication, workflow management, AI assistance, and database operations.
+
+---
+
+## Functional Testing
+
+| Module | Test Status |
+|---------|-------------|
+| User Authentication | ✅ Passed |
+| Role-Based Dashboard Access | ✅ Passed |
+| Case Registration | ✅ Passed |
+| Case Management | ✅ Passed |
+| Investigation Timeline | ✅ Passed |
+| Dynamic Procedural Obligation Graph (D-POG) | ✅ Passed |
+| AI Recommendation System | ✅ Passed |
+| Public Case Tracking | ✅ Passed |
+| Notification System | ✅ Passed |
+| Database Operations | ✅ Passed |
+
+---
+
+## Integration Testing
+
+The following integrations were validated:
+
+- ✅ React Frontend ↔ Express Backend
+- ✅ Backend ↔ Supabase Database
+- ✅ Backend ↔ Google Gemini AI
+- ✅ Dashboard ↔ Workflow Engine
+- ✅ Public Portal ↔ Database
+
+---
+
+## Security Testing
+
+The following security features were verified:
+
+- ✅ JWT Authentication
+- ✅ Role-Based Access Control (RBAC)
+- ✅ Protected API Endpoints
+- ✅ Secure Database Access
+- ✅ Environment Variable Protection
+
+---
+
+## Performance Testing
+
+The prototype was tested for responsiveness and usability.
+
+- Fast page loading
+- Responsive dashboard interface
+- Efficient API communication
+- Smooth workflow visualization
+- Reliable database connectivity
+
+---
+
+## Compatibility Testing
+
+SAKSHI was tested in a modern web browser environment using:
+
+- Google Chrome
+- Microsoft Edge
+
+---
+
+## Testing Summary
+
+| Test Category | Result |
+|--------------|--------|
+| Functional Testing | ✅ Passed |
+| Integration Testing | ✅ Passed |
+| Security Testing | ✅ Passed |
+| Performance Testing | ✅ Passed |
+| Compatibility Testing | ✅ Passed |
+
+The prototype successfully demonstrated all major functionalities, including role-based access, investigation workflow management, AI-assisted procedural guidance, Dynamic Procedural Obligation Graph (D-POG) visualization, and secure database integration.
