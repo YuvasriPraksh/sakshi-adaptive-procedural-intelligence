@@ -1142,3 +1142,78 @@ Enable secure uploading, storage, verification, and controlled sharing of invest
 ## Long-Term Vision
 
 The long-term vision of **SAKSHI** is to become a scalable AI-powered procedural intelligence platform that assists investigative agencies in managing criminal investigations through workflow automation, intelligent procedural guidance, secure collaboration, and transparent case monitoring while maintaining privacy, accountability, and procedural compliance.
+
+
+# 🎥 Demo
+
+The SAKSHI prototype demonstrates how AI-assisted procedural intelligence can streamline the pre-court investigation workflow of POCSO cases through secure multi-role collaboration and workflow visualization.
+
+## Demo Flow
+
+### 1️⃣ User Authentication
+- Login as Police Officer, Hospital Staff, CWC Officer, or FSL Officer.
+- Secure role-based access to authorized dashboards.
+
+---
+
+### 2️⃣ Case Registration
+- Register a new POCSO investigation case.
+- Generate a unique Case ID.
+- Assign the investigating officer.
+
+---
+
+### 3️⃣ Investigation Workflow
+- Update procedural stages as the investigation progresses.
+- Track investigation status through the Dynamic Procedural Obligation Graph (D-POG).
+- View completed, active, and pending investigation stages.
+
+---
+
+### 4️⃣ AI Assistance
+- Generate AI-powered procedural recommendations.
+- Explain investigation delays.
+- Suggest the next procedural step.
+- Generate investigation summaries.
+
+---
+
+### 5️⃣ Public Case Tracking
+- Track case progress using the Public Portal.
+- View the current investigation stage and overall progress.
+- Access only non-confidential case information.
+
+---
+
+### 6️⃣ Dashboard & Analytics
+- Monitor investigation progress.
+- View readiness score and timeline.
+- Receive alerts for pending procedural obligations.
+- Access AI-generated insights for better decision-making.
+
+---
+
+## Prototype Highlights
+
+- ✅ Secure Role-Based Authentication
+- ✅ Multi-Agency Workflow Management
+- ✅ Dynamic Procedural Obligation Graph (D-POG)
+- ✅ AI-Powered Procedural Guidance
+- ✅ Real-Time Investigation Timeline
+- ✅ Public Case Tracking Portal
+- ✅ Supabase Database Integration
+
+---
+
+## Demo Credentials (Prototype)
+
+| Role | Email | Password |
+|------|-------|----------|
+| Police Officer | police@sakshi.ai | password123 |
+| Hospital Staff | hospital@sakshi.ai | password123 |
+| CWC Officer | cwc@sakshi.ai | password123 |
+| FSL Officer | fsl@sakshi.ai | password123 |
+
+> **Note:** The credentials above are placeholder demo accounts for showcasing the prototype. Replace them with your actual demo credentials before the final presentation.
+## 🔗 Live Demo
+Demo : https://case-workflow-portal.preview.emergentagent.com/?utm_source=share
