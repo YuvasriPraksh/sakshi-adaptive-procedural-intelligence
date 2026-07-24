@@ -321,3 +321,87 @@ The AI analyzes the current graph state to:
 - Improved decision support for investigators
 
 
+# 📂 Project Structure
+
+```text
+sakshi-adaptive-procedural-intelligence/
+│
+├── 📁 client/                          # Frontend (React + Vite)
+│   ├── 📁 public/
+│   │
+│   ├── 📁 src/
+│   │   ├── 📁 assets/                  # Images, icons, logos
+│   │   ├── 📁 components/              # Reusable UI components
+│   │   ├── 📁 pages/
+│   │   │   ├── Login/
+│   │   │   ├── Dashboard/
+│   │   │   ├── Police/
+│   │   │   ├── Hospital/
+│   │   │   ├── CWC/
+│   │   │   ├── FSL/
+│   │   │   ├── PublicPortal/
+│   │   │   └── NotFound/
+│   │   │
+│   │   ├── 📁 layouts/
+│   │   ├── 📁 services/                # API calls
+│   │   ├── 📁 hooks/
+│   │   ├── 📁 utils/
+│   │   ├── 📁 context/
+│   │   ├── 📁 routes/
+│   │   ├── 📁 styles/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   │
+│   ├── package.json
+│   └── vite.config.js
+│
+├── 📁 server/                          # Backend (Node.js + Express)
+│   ├── 📁 config/
+│   ├── 📁 controllers/
+│   ├── 📁 middleware/
+│   ├── 📁 models/
+│   ├── 📁 routes/
+│   ├── 📁 services/
+│   │   ├── aiService.js
+│   │   ├── graphService.js
+│   │   └── notificationService.js
+│   │
+│   ├── 📁 utils/
+│   ├── 📁 database/
+│   ├── server.js
+│   └── package.json
+│
+├── 📁 docs/
+│   ├── architecture.png
+│   ├── workflow.png
+│   └── screenshots/
+│
+├── 📁 database/
+│   ├── schema.sql
+│   └── sample_data.sql
+│
+├── 📁 .github/
+│   └── workflows/
+│
+├── .env.example
+├── .gitignore
+├── README.md
+└── LICENSE
+```
+
+## 📁 Folder Description
+
+| Folder | Description |
+|---------|-------------|
+| `client/` | React frontend application |
+| `server/` | Node.js and Express backend |
+| `docs/` | Architecture diagrams, screenshots, and documentation |
+| `database/` | Database schema and sample SQL scripts |
+| `components/` | Reusable UI components |
+| `pages/` | Role-based dashboards and application pages |
+| `routes/` | API and frontend routing |
+| `services/` | Business logic, AI integration, and API communication |
+| `controllers/` | Backend request handlers |
+| `middleware/` | Authentication and authorization |
+| `config/` | Environment and application configuration |
+| `utils/` | Helper functions |
