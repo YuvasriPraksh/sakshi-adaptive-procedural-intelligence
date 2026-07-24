@@ -229,3 +229,10 @@ Features include:
 | Package Manager | npm | Dependency management |
 | Frontend Deployment | Vercel | Deploy React application |
 | Backend Deployment | Render | Deploy Express backend |
+
+
+## 🏗️ System Architecture
+
+The SAKSHI architecture follows a modular three-tier design consisting of a React frontend, a Node.js backend, Supabase as the database, and Gemini AI for procedural intelligence. The Dynamic Procedural Obligation Graph (D-POG) acts as the core workflow engine, coordinating investigation stages and providing real-time insights to all authorized stakeholders.
+
+![System Architecture](docs/architecture.png)
