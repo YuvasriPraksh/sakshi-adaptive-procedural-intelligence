@@ -774,3 +774,88 @@ SAKSHI uses **Supabase (PostgreSQL)** as its primary database to securely store 
 | Authentication | Supabase Auth + JWT |
 | Storage | Supabase Storage |
 | Security | Row-Level Security (RLS) |
+
+
+# 🤖 AI Workflow
+
+SAKSHI integrates **Google Gemini AI** with the **Dynamic Procedural Obligation Graph (D-POG)** to provide intelligent procedural assistance during pre-court POCSO investigations. Instead of making decisions on behalf of investigators, the AI analyzes the current investigation workflow and provides contextual recommendations based on the procedural state of the case.
+
+---
+
+## AI Workflow
+
+```text
+            User Updates Investigation Stage
+                         │
+                         ▼
+                React Frontend Dashboard
+                         │
+                         ▼
+               Node.js + Express Backend
+                         │
+                         ▼
+         Retrieve Case & Workflow Data (Supabase)
+                         │
+                         ▼
+     Dynamic Procedural Obligation Graph (D-POG)
+                         │
+        Analyze Current Investigation State
+                         │
+                         ▼
+              Google Gemini AI Processing
+                         │
+         ┌───────────────┼────────────────┐
+         ▼               ▼                ▼
+  Explain Delays   Recommend Next Step   Detect Missing Steps
+         │               │                │
+         └───────────────┼────────────────┘
+                         ▼
+               AI Response to Backend
+                         │
+                         ▼
+          Display Insights on Dashboard
+```
+
+---
+
+## AI Capabilities
+
+- Explain why an investigation stage is delayed.
+- Recommend the next procedural step.
+- Identify missing mandatory investigation activities.
+- Generate investigation summaries.
+- Provide workflow guidance based on the current case status.
+- Assist investigators with procedural queries.
+
+---
+
+## AI Input
+
+The AI receives:
+
+- Current investigation stage
+- Completed procedural stages
+- Pending procedural obligations
+- Stage dependencies from D-POG
+- Case metadata (non-sensitive)
+
+---
+
+## AI Output
+
+The AI generates:
+
+- Investigation summary
+- Delay explanation
+- Recommended next action
+- Missing procedural requirements
+- Workflow guidance
+
+---
+
+## AI Safety
+
+- AI provides recommendations only.
+- Final decisions remain with authorized officers.
+- Sensitive investigation data is protected through role-based access control.
+- AI responses are generated using authorized workflow information and are not used for autonomous decision-making.
