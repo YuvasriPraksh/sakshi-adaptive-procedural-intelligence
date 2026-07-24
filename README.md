@@ -542,3 +542,109 @@ The current prototype focuses on streamlining the **pre-court POCSO investigatio
 ### Long-Term Vision
 
 SAKSHI aims to evolve into a scalable procedural intelligence platform that can assist multiple agencies in managing criminal investigations efficiently while improving transparency, accountability, and coordination across the justice system.
+
+# 📡 API Documentation
+
+SAKSHI follows a RESTful API architecture to enable secure communication between the frontend, backend, database, and AI services.
+
+**Base URL**
+
+```
+http://localhost:5000/api
+```
+
+---
+
+## Authentication APIs
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/auth/login` | Authenticate user and generate JWT token |
+| POST | `/auth/logout` | Logout current user |
+| GET | `/auth/profile` | Retrieve logged-in user profile |
+
+---
+
+## Case Management APIs
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/cases` | Register a new case |
+| GET | `/cases` | Retrieve all cases |
+| GET | `/cases/:id` | Get case details by ID |
+| PUT | `/cases/:id` | Update case information |
+| DELETE | `/cases/:id` | Delete a case (Admin only) |
+
+---
+
+## Investigation Workflow APIs
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/workflow/:caseId` | Retrieve investigation workflow |
+| POST | `/workflow/update` | Update investigation stage |
+| GET | `/workflow/timeline/:caseId` | Get complete investigation timeline |
+| GET | `/workflow/readiness/:caseId` | Calculate investigation readiness score |
+
+---
+
+## Dynamic Procedural Obligation Graph (D-POG) APIs
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/graph/:caseId` | Retrieve procedural graph |
+| POST | `/graph/update` | Update graph after stage completion |
+| GET | `/graph/dependencies/:caseId` | View stage dependencies |
+
+---
+
+## AI Assistant APIs
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/ai/recommendation` | Generate AI recommendations |
+| POST | `/ai/explain-delay` | Explain investigation delays |
+| POST | `/ai/next-step` | Suggest the next procedural step |
+| POST | `/ai/summary` | Generate investigation summary |
+
+---
+
+## Notification APIs
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/notifications/:userId` | Retrieve notifications |
+| PUT | `/notifications/read/:id` | Mark notification as read |
+
+---
+
+## Public Tracking APIs
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/public/status/:caseId` | View public case status |
+| GET | `/public/timeline/:caseId` | View public investigation timeline |
+
+---
+
+## Response Format
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "message": "Request completed successfully",
+  "data": {}
+}
+```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "message": "Unable to process the request",
+  "error": {}
+}
+```
