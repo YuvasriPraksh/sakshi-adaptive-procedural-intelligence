@@ -24,3 +24,13 @@
 | **Dharanii K** | Documentation & Frontend Developer | README Documentation, UI Design, Frontend Development |
 | **Nalini N** | Frontend Developer | Dashboard Development, User Interface, Public Portal |
 | **Sharani V** | Backend Developer | Backend APIs, Database Management, Authentication & Business Logic |
+
+## 🚨 Problem Statement
+
+The investigation of POCSO (Protection of Children from Sexual Offences) cases involves multiple stakeholders, including the Police Department, Hospitals, Child Welfare Committee (CWC), and Forensic Science Laboratory (FSL). Each organization performs critical responsibilities that must be completed within specific procedural timelines before the charge sheet is submitted to the court.
+
+However, the current workflow is often fragmented, with information maintained across different systems or recorded manually. This lack of coordination makes it difficult to monitor investigation progress, identify pending tasks, detect procedural delays, and understand dependencies between agencies. As a result, investigators may face unnecessary delays, reduced transparency, and challenges in ensuring timely completion of legally required procedures.
+
+Additionally, there is no unified platform that provides investigators and authorized stakeholders with a real-time visual representation of the investigation workflow, highlights blocked stages, predicts procedural risks, and explains what actions are required next. These challenges can slow down investigations and impact the overall efficiency of the justice delivery process.
+
+Therefore, there is a need for an intelligent procedural coordination platform that improves collaboration, enhances transparency, tracks investigation progress, and assists authorities in completing pre-court investigations efficiently.
