@@ -166,3 +166,66 @@ Features include:
 - Protected investigation records
 - Audit logging of procedural updates
 - Restricted access to sensitive information
+
+
+# 🛠️ Tech Stack
+
+### Frontend
+- React.js (Vite)
+- Tailwind CSS
+- React Router DOM
+- React Flow (Dynamic Procedural Graph)
+- Recharts
+- Axios
+- Lucide React
+
+### Backend
+- Node.js
+- Express.js
+- RESTful APIs
+- JWT Authentication
+
+### Database & Backend Services
+- Supabase
+- PostgreSQL
+- Supabase Authentication
+- Supabase Storage
+
+### Artificial Intelligence
+- Google Gemini API
+- A2A (Agent-to-Agent Communication)
+- Prompt Engineering
+
+### Development Tools
+- Git
+- GitHub
+- Visual Studio Code
+- Postman
+- npm
+
+### Deployment
+- Vercel (Frontend)
+- Render (Backend)
+
+| Category | Technology | Purpose |
+|----------|------------|---------|
+| Frontend | React.js (Vite) | Build responsive user interfaces |
+| Styling | Tailwind CSS | Modern UI design |
+| Routing | React Router DOM | Navigation between pages |
+| Workflow Visualization | React Flow | Dynamic Procedural Obligation Graph (D-POG) |
+| Charts | Recharts | Dashboard analytics and statistics |
+| API Communication | Axios | Connect frontend with backend |
+| Icons | Lucide React | User interface icons |
+| Backend | Node.js | Server-side runtime |
+| Framework | Express.js | REST API development |
+| Authentication | JWT | Secure role-based authentication |
+| Database | PostgreSQL (Supabase) | Store cases, users, and workflow data |
+| Backend Services | Supabase | Database, authentication, and storage |
+| AI | Google Gemini API | AI-powered procedural guidance |
+| AI Orchestration | A2A | Agent-to-Agent communication |
+| Version Control | Git & GitHub | Source code management |
+| API Testing | Postman | API development and testing |
+| Code Editor | Visual Studio Code | Development environment |
+| Package Manager | npm | Dependency management |
+| Frontend Deployment | Vercel | Deploy React application |
+| Backend Deployment | Render | Deploy Express backend |
