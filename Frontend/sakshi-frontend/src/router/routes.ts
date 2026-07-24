@@ -30,6 +30,7 @@ export const ROUTES = {
 
   // Analytics & reporting
   ANALYTICS:         "/analytics",
+  REPORTS:           "/reports",
 
   // Documents & evidence
   DOCUMENTS:         "/documents",

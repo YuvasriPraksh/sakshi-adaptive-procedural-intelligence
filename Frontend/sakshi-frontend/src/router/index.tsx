@@ -21,6 +21,7 @@ const TimelinePage           = lazy(() => import("@/pages/timeline/TimelinePage"
 const GraphPage              = lazy(() => import("@/pages/graph/GraphPage"));
 const AIAssistantPage        = lazy(() => import("@/pages/ai/AIAssistantPage"));
 const AnalyticsPage          = lazy(() => import("@/pages/analytics/AnalyticsPage"));
+const ReportsPage            = lazy(() => import("@/pages/reports/ReportsPage"));
 const NotificationsPage      = lazy(() => import("@/pages/notifications/NotificationsPage"));
 const AuditPage              = lazy(() => import("@/pages/audit/AuditPage"));
 const DocumentsPage          = lazy(() => import("@/pages/documents/DocumentsPage"));
@@ -70,6 +71,7 @@ const router = createBrowserRouter([
       { path: ROUTES.GRAPH_CASE,           element: <S><GraphPage /></S> },
       { path: ROUTES.AI_ASSISTANT,         element: <S><AIAssistantPage /></S> },
       { path: ROUTES.ANALYTICS,            element: <S><AnalyticsPage /></S> },
+      { path: ROUTES.REPORTS,              element: <S><ReportsPage /></S> },
       { path: ROUTES.NOTIFICATIONS,        element: <S><NotificationsPage /></S> },
       { path: ROUTES.AUDIT,                element: <S><AuditPage /></S> },
       { path: ROUTES.DOCUMENTS,            element: <S><DocumentsPage /></S> },

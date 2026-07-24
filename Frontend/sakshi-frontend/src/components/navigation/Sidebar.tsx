@@ -12,15 +12,16 @@ import type { NavItem } from "@/types/navigation.types";
 
 // ─── Nav data ─────────────────────────────────────────────────────────────────
 export const MAIN_NAV: NavItem[] = [
-  { label: "Dashboard",    href: ROUTES.DASHBOARD,          icon: "dashboard" },
-  { label: "Cases",        href: ROUTES.CASES,              icon: "cases" },
-  { label: "Timeline",     href: ROUTES.TIMELINE,           icon: "timeline" },
-  { label: "Proc. Graph",  href: ROUTES.GRAPH,              icon: "graph" },
-  { label: "AI Assistant", href: ROUTES.AI_ASSISTANT,       icon: "ai" },
-  { label: "Analytics",    href: ROUTES.ANALYTICS,          icon: "analytics" },
-  { label: "Documents",    href: ROUTES.DOCUMENTS,          icon: "documents" },
-  { label: "Audit Trail",  href: ROUTES.AUDIT,              icon: "audit" },
-  { label: "Notifications",href: ROUTES.NOTIFICATIONS,      icon: "notifications", badge: true },
+  { label: "Dashboard",    href: ROUTES.DASHBOARD,     icon: "dashboard"     },
+  { label: "Cases",        href: ROUTES.CASES,         icon: "cases"         },
+  { label: "Timeline",     href: ROUTES.TIMELINE,      icon: "timeline"      },
+  { label: "Proc. Graph",  href: ROUTES.GRAPH,         icon: "graph"         },
+  { label: "AI Assistant", href: ROUTES.AI_ASSISTANT,  icon: "ai"            },
+  { label: "Analytics",    href: ROUTES.ANALYTICS,     icon: "analytics"     },
+  { label: "Reports",      href: ROUTES.REPORTS,       icon: "audit"         },
+  { label: "Documents",    href: ROUTES.DOCUMENTS,     icon: "documents"     },
+  { label: "Audit Trail",  href: ROUTES.AUDIT,         icon: "audit"         },
+  { label: "Notifications",href: ROUTES.NOTIFICATIONS, icon: "notifications", badge: true },
 ];
 
 export const SETTINGS_NAV: NavItem[] = [
