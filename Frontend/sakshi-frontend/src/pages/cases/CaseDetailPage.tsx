@@ -1,0 +1,290 @@
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft, Edit, Share2, MoreHorizontal,
+  MapPin, Calendar, User, FileText, AlertTriangle,
+  CheckCircle2, Clock, ChevronRight, BrainCircuit,
+} from "lucide-react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
+import { Avatar } from "@/components/ui/feedback/Avatar";
+import { ProgressBar } from "@/components/ui/feedback/ProgressBar";
+import { cn } from "@/lib/utils";
+import { CASES } from "@/data/cases.data";
+import { OFFICERS } from "@/data/officers.data";
+import { ROUTES } from "@/router/routes";
+import { STATUS_LABEL, STATUS_BADGE, PRIORITY_LABEL, PRIORITY_BADGE, CRIME_LABEL } from "@/utils/case.utils";
+import { formatDate, formatRelativeTime } from "@/utils/format";
+import { WorkflowTab } from "./components/WorkflowTab";
+import { DocumentsTab } from "./components/DocumentsTab";
+import { WorkflowGraphTab } from "./components/WorkflowGraphTab";
+import { OfficerAssignPanel } from "./components/OfficerAssignPanel";
+import type { InvestigationCase } from "@/types/case.types";
+
+const TABS = ["Overview","Workflow","Graph","Documents","History","AI Insights"] as const;
+type Tab = typeof TABS[number];
+
+export default function CaseDetailPage() {
+  const { caseId } = useParams<{ caseId: string }>();
+  const navigate   = useNavigate();
+  const [activeTab, setActiveTab] = useState<Tab>("Overview");
+  const [caseData, setCaseData]   = useState<InvestigationCase | undefined>(() => CASES.find(c => c.id === caseId));
+  const [showAssign, setShowAssign] = useState(false);
+
+  if (!caseData) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <AlertTriangle className="h-12 w-12 text-amber-400" />
+          <p className="text-lg font-semibold text-foreground">Case not found</p>
+          <button onClick={() => navigate(ROUTES.CASES)} className="text-sm text-[hsl(var(--primary))] hover:underline">← Back to Cases</button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const officer = OFFICERS.find(o => o.id === caseData.assignedOfficerId);
+  const progress = Math.round((caseData.currentStageOrder / caseData.totalStages) * 100);
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-5">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <button onClick={() => navigate(ROUTES.CASES)} className="hover:text-foreground flex items-center gap-1 transition-colors">
+            <ArrowLeft className="h-3.5 w-3.5" /> Cases
+          </button>
+          <ChevronRight className="h-3 w-3" />
+          <span className="font-mono font-semibold text-foreground">{caseData.caseNumber}</span>
+        </div>
+
+        {/* Header card */}
+        <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} className="rounded-xl border border-border bg-card p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-mono text-sm font-bold text-[hsl(var(--primary))]">{caseData.caseNumber}</span>
+                <StatusBadge variant={PRIORITY_BADGE[caseData.priority]} size="xs" dot>{PRIORITY_LABEL[caseData.priority]}</StatusBadge>
+                <StatusBadge variant={STATUS_BADGE[caseData.status]} size="xs" dot>{STATUS_LABEL[caseData.status]}</StatusBadge>
+              </div>
+              <h1 className="text-xl font-bold text-foreground">{CRIME_LABEL[caseData.crimeType]}</h1>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{caseData.incidentLocation}</span>
+                <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />Incident: {formatDate(caseData.incidentDate)}</span>
+                <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" />FIR: {caseData.firNumber}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setShowAssign(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium hover:bg-muted transition-colors">
+                <User className="h-3.5 w-3.5" /> Assign Officer
+              </button>
+              <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium hover:bg-muted transition-colors">
+                <Share2 className="h-3.5 w-3.5" /> Share
+              </button>
+              <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium hover:bg-muted transition-colors">
+                <Edit className="h-3.5 w-3.5" /> Edit
+              </button>
+              <button className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
+                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </div>
+          </div>
+
+          {/* Progress */}
+          <div className="mt-5 space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-foreground">{caseData.currentStage}</span>
+              <span className="text-muted-foreground">{caseData.currentStageOrder} of {caseData.totalStages} stages</span>
+            </div>
+            <ProgressBar value={progress} color={caseData.priority === "critical" ? "danger" : caseData.priority === "high" ? "warning" : "primary"} size="md" />
+          </div>
+        </motion.div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-0 overflow-x-auto no-scrollbar border-b border-border">
+          {TABS.map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              className={cn("flex items-center gap-1.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px",
+                activeTab === tab ? "border-[hsl(var(--primary))] text-[hsl(var(--primary))]" : "border-transparent text-muted-foreground hover:text-foreground")}>
+              {tab === "AI Insights" && <BrainCircuit className="h-3.5 w-3.5" />}
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <motion.div key={activeTab} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.2 }}>
+          {activeTab === "Overview"    && <OverviewTab c={caseData} officer={officer} />}
+          {activeTab === "Workflow"    && <WorkflowTab caseData={caseData} onUpdate={setCaseData} />}
+          {activeTab === "Graph"       && <WorkflowGraphTab caseData={caseData} />}
+          {activeTab === "Documents"   && <DocumentsTab documents={caseData.documents} />}
+          {activeTab === "History"     && <HistoryTab caseData={caseData} />}
+          {activeTab === "AI Insights" && <AIInsightsTab />}
+        </motion.div>
+      </div>
+
+      <OfficerAssignPanel open={showAssign} onClose={() => setShowAssign(false)}
+        currentOfficerId={caseData.assignedOfficerId}
+        onAssign={(officer) => { setCaseData(prev => prev ? { ...prev, assignedOfficerId: officer.id, assignedOfficer: officer.name } : prev); setShowAssign(false); }} />
+    </DashboardLayout>
+  );
+}
+
+// ─── Overview Tab ─────────────────────────────────────────────────────────────
+function OverviewTab({ c, officer }: { c: InvestigationCase; officer: ReturnType<typeof OFFICERS.find> }) {
+  const infoItems = [
+    { label: "Case Number",    value: c.caseNumber },
+    { label: "FIR Number",     value: c.firNumber },
+    { label: "Crime Type",     value: CRIME_LABEL[c.crimeType] },
+    { label: "Victim Code",    value: c.victimCode },
+    { label: "Victim Age",     value: `${c.victimAge} years, ${c.victimGender === "F" ? "Female" : "Male"}` },
+    { label: "Incident Date",  value: formatDate(c.incidentDate) },
+    { label: "Location",       value: c.incidentLocation },
+    { label: "District",       value: `${c.district}, ${c.state}` },
+    { label: "Created",        value: formatDate(c.createdAt) },
+    { label: "Last Updated",   value: formatRelativeTime(c.updatedAt) },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="lg:col-span-2 space-y-4">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-sm font-semibold text-foreground mb-4">Case Information</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+            {infoItems.map(item => (
+              <div key={item.label}>
+                <p className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground mb-0.5">{item.label}</p>
+                <p className="text-sm font-medium text-foreground">{item.value}</p>
+              </div>
+            ))}
+          </div>
+          {c.remarks && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Remarks</p>
+              <p className="text-sm text-foreground">{c.remarks}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {/* Assigned Officer */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-sm font-semibold text-foreground mb-4">Assigned Officer</p>
+          {officer ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Avatar name={officer.name} size="lg" online />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{officer.name}</p>
+                  <p className="text-xs text-muted-foreground">{officer.designation}</p>
+                  <StatusBadge variant="primary" size="xs" className="mt-1 capitalize">{officer.department}</StatusBadge>
+                </div>
+              </div>
+              <div className="space-y-2 pt-2 border-t border-border text-xs">
+                {[
+                  { label: "Station",      value: officer.station },
+                  { label: "Badge",        value: officer.badge },
+                  { label: "Phone",        value: officer.phone },
+                  { label: "Active Cases", value: `${officer.activeCases} cases` },
+                ].map(r => (
+                  <div key={r.label} className="flex justify-between">
+                    <span className="text-muted-foreground">{r.label}</span>
+                    <span className="font-medium text-foreground">{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No officer assigned</p>
+          )}
+        </div>
+
+        {/* Stage summary */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-sm font-semibold text-foreground mb-3">Stage Summary</p>
+          <div className="space-y-2">
+            {c.workflow.slice(0,5).map(stage => (
+              <div key={stage.id} className="flex items-center gap-2.5">
+                <div className={cn("h-5 w-5 rounded-full flex items-center justify-center shrink-0",
+                  stage.status==="completed" ? "bg-emerald-100 dark:bg-emerald-950/40" :
+                  stage.status==="in_progress" ? "bg-royal-100 dark:bg-royal-950/40" : "bg-muted")}>
+                  {stage.status==="completed" ? <CheckCircle2 className="h-3 w-3 text-emerald-600" /> :
+                   stage.status==="in_progress" ? <Clock className="h-3 w-3 text-royal-600" /> :
+                   <div className="h-2 w-2 rounded-full bg-muted-foreground/30" />}
+                </div>
+                <p className={cn("text-xs truncate", stage.status==="completed" ? "text-foreground" : "text-muted-foreground")}>{stage.title}</p>
+              </div>
+            ))}
+            {c.workflow.length > 5 && <p className="text-2xs text-muted-foreground pl-7">+{c.workflow.length-5} more stages</p>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── History Tab ──────────────────────────────────────────────────────────────
+function HistoryTab({ caseData }: { caseData: InvestigationCase }) {
+  const events = caseData.workflow.filter(s => s.status === "completed").map(s => ({
+    title: s.title,
+    by: s.officer ?? "—",
+    date: s.completedDate ?? "",
+    remarks: s.remarks ?? "",
+  })).reverse();
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-5">
+      <p className="text-sm font-semibold text-foreground mb-5">Case History</p>
+      {events.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No completed stages yet.</p>
+      ) : (
+        <div className="relative pl-6">
+          <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-border" />
+          <div className="space-y-6">
+            {events.map((e, i) => (
+              <motion.div key={i} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }} transition={{ delay: i*0.07 }} className="relative">
+                <div className="absolute -left-6 top-1 h-4 w-4 rounded-full border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center">
+                  <CheckCircle2 className="h-2.5 w-2.5 text-emerald-600" />
+                </div>
+                <div className="rounded-lg border border-border bg-muted/30 p-3.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold text-foreground">{e.title}</p>
+                    <p className="text-2xs text-muted-foreground shrink-0">{e.date ? formatDate(e.date) : "—"}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">By: {e.by}</p>
+                  {e.remarks && <p className="text-xs text-foreground/70 mt-1.5 italic">"{e.remarks}"</p>}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── AI Insights Tab ──────────────────────────────────────────────────────────
+function AIInsightsTab() {
+  return (
+    <div className="rounded-xl border border-border bg-card p-8 text-center space-y-4">
+      <div className="flex justify-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">
+          <BrainCircuit className="h-8 w-8" strokeWidth={1.5} />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <p className="text-base font-semibold text-foreground">AI Insights Engine</p>
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          AI-powered procedural recommendations, risk assessment, and investigative insights will be available here once the AI backend is connected.
+        </p>
+      </div>
+      <div className="flex flex-wrap justify-center gap-3 pt-2">
+        {["Risk Assessment","Procedural Gaps","Evidence Analysis","Timeline Prediction"].map(f => (
+          <span key={f} className="rounded-full border border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 px-3 py-1 text-xs text-[hsl(var(--primary))]">{f}</span>
+        ))}
+      </div>
+    </div>
+  );
+}

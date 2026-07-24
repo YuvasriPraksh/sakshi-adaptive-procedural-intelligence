@@ -1,0 +1,105 @@
+import { createContext, useCallback, useContext, useReducer, type ReactNode } from "react";
+import type { User, UserRole } from "@/features/auth/types";
+
+// ─── State ────────────────────────────────────────────────────────────────────
+interface AuthState {
+  user:            User | null;
+  accessToken:     string | null;
+  isAuthenticated: boolean;
+  isLoading:       boolean;
+  error:           string | null;
+}
+
+const initialState: AuthState = {
+  user:            null,
+  accessToken:     localStorage.getItem("sakshi_access_token"),
+  isAuthenticated: Boolean(localStorage.getItem("sakshi_access_token")),
+  isLoading:       false,
+  error:           null,
+};
+
+// ─── Actions ──────────────────────────────────────────────────────────────────
+type AuthAction =
+  | { type: "AUTH_LOADING" }
+  | { type: "AUTH_SUCCESS";  payload: { user: User; accessToken: string } }
+  | { type: "AUTH_FAILURE";  payload: string }
+  | { type: "AUTH_LOGOUT" }
+  | { type: "USER_UPDATED";  payload: User };
+
+function authReducer(state: AuthState, action: AuthAction): AuthState {
+  switch (action.type) {
+    case "AUTH_LOADING":
+      return { ...state, isLoading: true, error: null };
+    case "AUTH_SUCCESS":
+      return {
+        ...state,
+        isLoading:       false,
+        isAuthenticated: true,
+        user:            action.payload.user,
+        accessToken:     action.payload.accessToken,
+        error:           null,
+      };
+    case "AUTH_FAILURE":
+      return { ...state, isLoading: false, error: action.payload };
+    case "AUTH_LOGOUT":
+      return { ...initialState, accessToken: null, isAuthenticated: false };
+    case "USER_UPDATED":
+      return { ...state, user: action.payload };
+    default:
+      return state;
+  }
+}
+
+// ─── Context ──────────────────────────────────────────────────────────────────
+interface AuthContextValue extends AuthState {
+  login:       (user: User, token: string) => void;
+  logout:      () => void;
+  updateUser:  (user: User) => void;
+  setLoading:  (v: boolean) => void;
+  setError:    (msg: string | null) => void;
+  hasRole:     (role: UserRole | UserRole[]) => boolean;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(authReducer, initialState);
+
+  const login = useCallback((user: User, token: string) => {
+    localStorage.setItem("sakshi_access_token", token);
+    dispatch({ type: "AUTH_SUCCESS", payload: { user, accessToken: token } });
+  }, []);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem("sakshi_access_token");
+    localStorage.removeItem("sakshi_refresh_token");
+    dispatch({ type: "AUTH_LOGOUT" });
+  }, []);
+
+  const updateUser  = useCallback((user: User) => dispatch({ type: "USER_UPDATED",  payload: user }), []);
+  const setLoading  = useCallback((v: boolean) => v ? dispatch({ type: "AUTH_LOADING" }) : void 0, []);
+  const setError    = useCallback((msg: string | null) => msg ? dispatch({ type: "AUTH_FAILURE", payload: msg }) : void 0, []);
+
+  const hasRole = useCallback(
+    (role: UserRole | UserRole[]) => {
+      if (!state.user) return false;
+      const roles = Array.isArray(role) ? role : [role];
+      return roles.includes(state.user.role);
+    },
+    [state.user],
+  );
+
+  return (
+    <AuthContext.Provider value={{ ...state, login, logout, updateUser, setLoading, setError, hasRole }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+}
