@@ -859,3 +859,123 @@ The AI generates:
 - Final decisions remain with authorized officers.
 - Sensitive investigation data is protected through role-based access control.
 - AI responses are generated using authorized workflow information and are not used for autonomous decision-making.
+
+
+
+
+
+# 🔐 Security
+
+SAKSHI is designed with a security-first approach to protect sensitive investigation data while ensuring that only authorized stakeholders can access relevant information. The platform follows secure authentication, role-based authorization, and controlled data access principles.
+
+---
+
+## Security Features
+
+### 🔑 Role-Based Access Control (RBAC)
+
+Users are assigned specific roles with predefined permissions.
+
+Supported Roles:
+- 👮 Police Officer
+- 🏥 Hospital Staff
+- 👨‍👩‍👧 Child Welfare Committee (CWC)
+- 🧪 FSL Officer
+- 👤 Public User
+
+Each user can only access the information and functionality permitted for their role.
+
+---
+
+### 🔒 Secure Authentication
+
+- JWT-based authentication
+- Secure login sessions
+- Protected API endpoints
+- Session validation for every request
+
+---
+
+### 🛡️ Database Security
+
+- PostgreSQL database hosted on Supabase
+- Row-Level Security (RLS) policies
+- Protected database credentials using environment variables
+- Parameterized database queries to reduce SQL injection risks
+
+---
+
+### 🔐 Data Privacy
+
+SAKSHI follows the principle of minimum data exposure.
+
+- Sensitive case information is restricted to authorized personnel.
+- The Public Portal displays only non-confidential case progress.
+- Personally identifiable information (PII) is protected from unauthorized access.
+
+---
+
+### 📝 Audit Logging
+
+Every important system action is recorded, including:
+
+- User login
+- Case creation
+- Investigation stage updates
+- Workflow modifications
+- AI recommendation requests
+
+This helps improve accountability and traceability.
+
+---
+
+### 🤖 AI Security
+
+Google Gemini AI is used only to provide procedural assistance.
+
+The AI:
+- Explains investigation progress
+- Suggests the next procedural step
+- Identifies missing workflow stages
+- Generates investigation summaries
+
+The AI does **not** make legal decisions or automatically modify investigation records.
+
+---
+
+### 🌐 API Security
+
+- Protected REST APIs
+- JWT token verification
+- Input validation
+- Error handling
+- Restricted access based on user roles
+
+---
+
+### 🔑 Environment Security
+
+Sensitive configuration values are stored using environment variables, including:
+
+- Supabase URL
+- Supabase API Keys
+- Gemini API Key
+- JWT Secret
+
+These credentials are never hardcoded into the source code.
+
+---
+
+## Security Summary
+
+| Security Component | Implementation |
+|--------------------|----------------|
+| Authentication | JWT |
+| Authorization | Role-Based Access Control (RBAC) |
+| Database | Supabase PostgreSQL |
+| Database Protection | Row-Level Security (RLS) |
+| API Security | Protected REST APIs |
+| Password Security | Encrypted Authentication |
+| AI Security | Recommendation-only AI |
+| Audit Trail | Activity Logging |
+| Secrets Management | Environment Variables (.env) |
