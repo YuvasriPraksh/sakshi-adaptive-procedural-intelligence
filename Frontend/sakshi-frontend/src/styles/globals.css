@@ -220,7 +220,8 @@
 
   /* Scrollable panel */
   .scrollable {
-    @apply overflow-y-auto scrollbar-thin;
+    @apply overflow-y-auto;
+    scrollbar-width: thin;
   }
 
   /* Hide scrollbar */
