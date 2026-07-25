@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { History, RotateCcw, CheckCircle2 } from "lucide-react";
+import { History, RotateCcw } from "lucide-react";
 import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
 import { formatDateTime } from "@/utils/format";
 import type { EvidenceVersion } from "@/types/evidence.types";

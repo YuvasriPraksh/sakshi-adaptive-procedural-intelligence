@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, ShieldCheck, ChevronRight, AlertTriangle,
-  CheckCircle2, Clock, RotateCcw, Share2, Download, Fingerprint,
+  ArrowLeft, ChevronRight, AlertTriangle,
+  CheckCircle2, Share2, Download, Fingerprint,
 } from "lucide-react";
 import { DashboardLayout }  from "@/components/layout/DashboardLayout";
 import { StatusBadge }       from "@/components/ui/feedback/StatusBadge";
@@ -11,8 +11,8 @@ import { Spinner }           from "@/components/ui/feedback/Spinner";
 import { cn }                from "@/lib/utils";
 import { ROUTES }            from "@/router/routes";
 import { evidenceService }   from "@/services/evidenceService";
-import { EVIDENCE_STATUS_LABEL, EVIDENCE_STATUS_BADGE, AGENCY_LABEL, AGENCY_COLOR, ACTION_LABEL, VERIFICATION_BADGE, truncateHash } from "@/utils/evidence.utils";
-import { formatDate, formatDateTime } from "@/utils/format";
+import { EVIDENCE_STATUS_LABEL, EVIDENCE_STATUS_BADGE, AGENCY_LABEL, AGENCY_COLOR, VERIFICATION_BADGE, truncateHash } from "@/utils/evidence.utils";
+import { formatDate } from "@/utils/format";
 import type { EvidenceItem } from "@/types/evidence.types";
 import { ChainOfCustody } from "./components/ChainOfCustody";
 import { IntegrityPanel }  from "./components/IntegrityPanel";
@@ -207,114 +207,5 @@ function OverviewTab({ evidence }: { evidence: EvidenceItem }) {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function EvidenceDetailPage() {
-  const { evidenceId } = useParams<{ evidenceId: string }>();
-  const navigate = useNavigate();
-  const [evidence, setEvidence] = useState<EvidenceItem|null>(null);
-  const [loading,  setLoading]  = useState(true);
-  const [activeTab, setActiveTab] = useState<Tab>("Overview");
-
-  useEffect(() => {
-    if (!evidenceId) return;
-    evidenceService.getById(evidenceId)
-      .then(r => { setEvidence(r.data); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [evidenceId]);
-
-  if (loading) return <DashboardLayout><div className="flex h-64 items-center justify-center"><Spinner size="lg" /></div></DashboardLayout>;
-  if (!evidence) return (
-    <DashboardLayout>
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <AlertTriangle className="h-12 w-12 text-amber-400" />
-        <p className="text-lg font-semibold">Evidence not found</p>
-        <button onClick={() => navigate(ROUTES.EVIDENCE)} className="text-sm text-[hsl(var(--primary))] hover:underline">← Back</button>
-      </div>
-    </DashboardLayout>
-  );
-
-  const agCol = AGENCY_COLOR[evidence.currentCustody];
-
-  return (
-    <DashboardLayout>
-      <div className="space-y-5">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <button onClick={() => navigate(ROUTES.EVIDENCE)} className="hover:text-foreground flex items-center gap-1">
-            <ArrowLeft className="h-3.5 w-3.5" /> Evidence
-          </button>
-          <ChevronRight className="h-3 w-3" />
-          <span className="font-mono font-semibold text-foreground">{evidence.evidenceId}</span>
-        </div>
-
-        {/* Header card */}
-        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
-          className="rounded-xl border border-border bg-card p-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="space-y-1.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono text-sm font-bold text-[hsl(var(--primary))]">{evidence.evidenceId}</span>
-                <StatusBadge variant={EVIDENCE_STATUS_BADGE[evidence.status]} size="xs" dot>{EVIDENCE_STATUS_LABEL[evidence.status]}</StatusBadge>
-                <StatusBadge variant={VERIFICATION_BADGE[evidence.verificationStatus]} size="xs">
-                  {evidence.verificationStatus === "verified" ? "✓ Verified" : "Pending"}
-                </StatusBadge>
-              </div>
-              <h1 className="text-xl font-bold text-foreground capitalize">{evidence.type.replace(/_/g," ")} Evidence</h1>
-              <p className="text-xs text-muted-foreground">Case: <span className="font-mono text-[hsl(var(--primary))]">{evidence.caseNumber}</span> · Seal: <span className="font-mono text-foreground">{evidence.sealNumber}</span></p>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <button onClick={() => navigate(ROUTES.EVIDENCE_TRANSFER.replace(":evidenceId", evidenceId!))}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted px-3 py-2 text-xs font-medium transition-colors">
-                <Share2 className="h-3.5 w-3.5" /> Transfer
-              </button>
-              <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted px-3 py-2 text-xs font-medium transition-colors">
-                <Download className="h-3.5 w-3.5" /> Export
-              </button>
-            </div>
-          </div>
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="rounded-lg bg-muted/40 px-3 py-2.5">
-              <p className="text-2xs text-muted-foreground mb-1">Current Custody</p>
-              <span className={cn("rounded-full border px-2 py-0.5 text-xs font-semibold", agCol.bg, agCol.text, agCol.border)}>{AGENCY_LABEL[evidence.currentCustody]}</span>
-            </div>
-            <div className="rounded-lg bg-muted/40 px-3 py-2.5">
-              <p className="text-2xs text-muted-foreground mb-1">Officer</p>
-              <p className="text-sm font-medium text-foreground truncate">{evidence.currentOfficer}</p>
-            </div>
-            <div className="rounded-lg bg-muted/40 px-3 py-2.5">
-              <p className="text-2xs text-muted-foreground mb-1">Collected</p>
-              <p className="text-sm text-foreground">{formatDate(evidence.collectionDate)}</p>
-            </div>
-            <div className="rounded-lg bg-muted/40 px-3 py-2.5">
-              <p className="text-2xs text-muted-foreground mb-1">Chain Events</p>
-              <p className="text-2xl font-bold text-[hsl(var(--primary))]">{evidence.chain.length}</p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Tabs */}
-        <div className="flex items-center overflow-x-auto no-scrollbar border-b border-border">
-          {TABS.map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              className={cn("whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px",
-                activeTab===tab?"border-[hsl(var(--primary))] text-[hsl(var(--primary))]":"border-transparent text-muted-foreground hover:text-foreground")}>
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab content */}
-        <motion.div key={activeTab} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.2 }}>
-          {activeTab==="Overview"         && <OverviewTab evidence={evidence} />}
-          {activeTab==="Chain of Custody" && <ChainOfCustody events={evidence.chain} />}
-          {activeTab==="Integrity"        && <IntegrityPanel evidence={evidence} onUpdated={setEvidence} />}
-          {activeTab==="Sharing"          && <EvidenceSharing evidence={evidence} />}
-          {activeTab==="History"          && <VersionHistory versions={evidence.versions} />}
-          {activeTab==="Audit Log"        && <EvidenceAuditLog logs={evidence.auditLogs} />}
-        </motion.div>
-      </div>
-    </DashboardLayout>
   );
 }

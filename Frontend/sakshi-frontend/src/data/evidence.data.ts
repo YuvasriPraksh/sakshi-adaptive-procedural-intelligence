@@ -1,4 +1,4 @@
-import type { EvidenceItem, EvidenceAlert, EvidenceDashboardStats } from "@/types/evidence.types";
+import type { EvidenceAlert, EvidenceDashboardStats } from "@/types/evidence.types";
 
 export const EVIDENCE_STATS: EvidenceDashboardStats = {
   total: 47,

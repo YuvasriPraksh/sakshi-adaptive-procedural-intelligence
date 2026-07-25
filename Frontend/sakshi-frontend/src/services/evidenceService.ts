@@ -4,6 +4,8 @@ import type { EvidenceItem, EvidenceTransferRequest, EvidenceDashboardStats, Evi
 import { DEMO_MODE, DEMO_DELAY } from "@/config/demo.config";
 import { EVIDENCE_ITEMS } from "@/data/evidence.items";
 import { EVIDENCE_STATS, EVIDENCE_ALERTS } from "@/data/evidence.data";
+import { AGENCY_LABEL } from "@/utils/evidence.utils";
+import type { CustodyEvent } from "@/types/evidence.types";
 
 export const evidenceService = {
   async getStats(): Promise<ApiResponse<EvidenceDashboardStats>> {
@@ -46,10 +48,10 @@ export const evidenceService = {
     if (DEMO_MODE) {
       await DEMO_DELAY(800);
       const item = EVIDENCE_ITEMS.find(e => e.id === id || e.evidenceId === id) ?? EVIDENCE_ITEMS[0];
-      const transferEvent = {
+      const transferEvent: CustodyEvent = {
         id:               `trf-${Date.now()}`,
         eventNumber:      item.chain.length + 1,
-        action:           "transferred" as const,
+        action:           "transferred",
         agency:           item.currentCustody,
         officer:          req.officer,
         officerRole:      "Custody Officer",

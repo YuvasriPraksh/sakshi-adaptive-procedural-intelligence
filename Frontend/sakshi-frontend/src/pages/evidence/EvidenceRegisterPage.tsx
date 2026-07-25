@@ -25,6 +25,9 @@ const schema = z.object({
   collectionDate:  z.string().min(1,"Date required"),
   collectionTime:  z.string().min(1,"Time required"),
   gpsLocation:     z.string().min(3,"Location required"),
+  photographs:     z.string().optional(),
+  weight:          z.string().optional(),
+  dimensions:      z.string().optional(),
   notes:           z.string().optional(),
 });
 type FormData = z.infer<typeof schema>;
@@ -36,9 +39,9 @@ const AGENCIES: { value: AgencyType; label: string }[] = [
   { value:"cwc",     label:"CWC"      },
 ];
 
-function Field({ label, error, children, required }: { label:string; error?:string; children:React.ReactNode; required?:boolean }) {
+function Field({ label, error, children, required, className }: { label:string; error?:string; children:React.ReactNode; required?:boolean; className?:string }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className={cn("flex flex-col gap-1.5", className)}>
       <label className="text-xs font-medium text-foreground">{label}{required && <span className="text-red-500 ml-0.5">*</span>}</label>
       {children}
       {error && <p className="text-xs text-red-500">{error}</p>}

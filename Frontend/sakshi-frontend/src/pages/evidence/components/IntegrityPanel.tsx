@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, ShieldAlert, RefreshCw, CheckCircle2, AlertTriangle, Fingerprint } from "lucide-react";
 import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
-import { ProgressBar } from "@/components/ui/feedback/ProgressBar";
 import { cn } from "@/lib/utils";
 import { evidenceService } from "@/services/evidenceService";
 import { formatDateTime } from "@/utils/format";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Share2, Plus, CheckCircle2, XCircle, Eye, Download, Lock } from "lucide-react";
+import { Share2, Plus, CheckCircle2, Eye, Download, Lock } from "lucide-react";
 import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
 import { cn } from "@/lib/utils";
 import { AGENCY_LABEL, AGENCY_COLOR } from "@/utils/evidence.utils";

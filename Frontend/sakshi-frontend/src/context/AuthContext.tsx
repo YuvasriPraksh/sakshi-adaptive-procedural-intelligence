@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useReducer, type ReactNode } from "react";
 import type { User, UserRole } from "@/features/auth/types";
+import { storage } from "@/utils/storage";
+import { STORAGE_KEYS } from "@/constants/app.constants";
 
 // ─── State ────────────────────────────────────────────────────────────────────
 interface AuthState {
@@ -12,8 +14,8 @@ interface AuthState {
 
 const initialState: AuthState = {
   user:            null,
-  accessToken:     localStorage.getItem("sakshi_access_token"),
-  isAuthenticated: Boolean(localStorage.getItem("sakshi_access_token")),
+  accessToken:     storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN, ""),
+  isAuthenticated: Boolean(storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN, "")),
   isLoading:       false,
   error:           null,
 };
@@ -67,13 +69,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   const login = useCallback((user: User, token: string) => {
-    localStorage.setItem("sakshi_access_token", token);
+    storage.set(STORAGE_KEYS.ACCESS_TOKEN, token);
     dispatch({ type: "AUTH_SUCCESS", payload: { user, accessToken: token } });
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem("sakshi_access_token");
-    localStorage.removeItem("sakshi_refresh_token");
+    storage.remove(STORAGE_KEYS.ACCESS_TOKEN);
+    storage.remove(STORAGE_KEYS.REFRESH_TOKEN);
     dispatch({ type: "AUTH_LOGOUT" });
   }, []);
 

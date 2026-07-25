@@ -8,6 +8,7 @@ import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/router/routes";
 import { useAuth } from "@/context/AuthContext";
+import { authService } from "@/services/authService";
 
 const schema = z.object({
   email:      z.string().min(1, "Email is required").email("Invalid email address"),
@@ -36,23 +37,24 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     setLoginError("");
-    await new Promise(r => setTimeout(r, 1200));
-    // Mock auth — accept any demo account or fallback
-    const demo = DEMO_ACCOUNTS.find(a => a.email === data.email && a.password === data.password);
-    if (!demo && data.password !== "password") {
-      setLoginError("Invalid credentials. Use a demo account below or password: password");
-      return;
+
+    try {
+      const response = await authService.login({ email: data.email, password: data.password });
+      if (!response.success || !response.data) {
+        setLoginError(response.message || "Unable to sign in right now.");
+        return;
+      }
+
+      const { user, tokens } = response.data;
+      login(user, tokens.accessToken);
+      setSuccess(true);
+      window.setTimeout(() => navigate(ROUTES.DASHBOARD), 800);
+    } catch (error: unknown) {
+      const message = error && typeof error === "object" && "message" in error && typeof (error as { message?: unknown }).message === "string"
+        ? (error as { message: string }).message
+        : "Unable to sign in right now.";
+      setLoginError(message);
     }
-    const user = {
-      id: "1", email: data.email,
-      name: demo ? `${demo.role} User` : "Admin User",
-      role: (demo?.role.toLowerCase() ?? "admin") as "admin",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    login(user, "mock-token-" + Date.now());
-    setSuccess(true);
-    setTimeout(() => navigate(ROUTES.DASHBOARD), 800);
   };
 
   return (
