@@ -58,7 +58,7 @@ function SidebarItem({ item, collapsed, unread }: SidebarItemProps) {
       {isActive && (
         <motion.span
           layoutId="active-nav-bar"
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-white/70"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-sky-400 shadow-sm shadow-sky-400/50"
           transition={{ duration: 0.2 }}
         />
       )}
@@ -169,7 +169,7 @@ export function Sidebar({ unreadNotifications = 0 }: SidebarProps) {
           collapsed ? "justify-center h-[60px]" : "px-4 h-[60px] gap-3",
         )}
       >
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-white font-extrabold text-sm select-none shadow-sm">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-600 border border-sky-400/30 text-white font-black text-sm select-none shadow-md shadow-sky-950/50">
           S
         </div>
         {!collapsed && (
@@ -178,8 +178,8 @@ export function Sidebar({ unreadNotifications = 0 }: SidebarProps) {
             animate={{ opacity: 1 }}
             className="min-w-0"
           >
-            <p className="text-sm font-bold text-white leading-tight truncate">SAKSHI</p>
-            <p className="text-2xs text-sidebar-foreground/40 truncate">Intelligence Platform</p>
+            <p className="text-sm font-bold text-slate-100 leading-tight truncate tracking-tight">SAKSHI</p>
+            <p className="text-2xs text-sky-400/80 font-medium truncate tracking-wide uppercase">Procedural Intelligence</p>
           </motion.div>
         )}
       </div>

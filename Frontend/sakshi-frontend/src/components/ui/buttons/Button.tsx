@@ -17,23 +17,23 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--primary))]/90 shadow-sm",
+          "bg-sky-600 text-white hover:bg-sky-500 border border-sky-400/30 shadow-sm shadow-sky-950/50 active:bg-sky-700",
         secondary:
-          "bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary))]/90 shadow-sm",
+          "bg-slate-900/90 text-slate-200 hover:bg-slate-800 border border-slate-700/60 shadow-sm active:bg-slate-950",
         outline:
-          "border border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground",
+          "border border-slate-700/60 bg-transparent text-slate-200 hover:bg-slate-800/80 hover:text-white",
         ghost:
-          "bg-transparent text-foreground hover:bg-muted hover:text-foreground",
+          "bg-transparent text-slate-300 hover:bg-slate-800/60 hover:text-white",
         success:
-          "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm",
+          "bg-emerald-600/90 text-white hover:bg-emerald-500 border border-emerald-400/30 shadow-sm",
         warning:
-          "bg-amber-500 text-white hover:bg-amber-600 shadow-sm",
+          "bg-amber-600/90 text-white hover:bg-amber-500 border border-amber-400/30 shadow-sm",
         danger:
-          "bg-danger-600 text-white hover:bg-danger-700 shadow-sm",
+          "bg-rose-900/40 text-rose-300 hover:bg-rose-900/70 border border-rose-700/50 shadow-sm",
         link:
-          "text-[hsl(var(--primary))] underline-offset-4 hover:underline p-0 h-auto",
+          "text-sky-400 underline-offset-4 hover:underline p-0 h-auto",
         muted:
-          "bg-muted text-muted-foreground hover:bg-muted/80",
+          "bg-slate-800/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200",
       },
       size: {
         xs:   "h-7  px-2.5 text-xs gap-1",

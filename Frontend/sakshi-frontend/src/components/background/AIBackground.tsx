@@ -1,9 +1,14 @@
 export function AIBackground() {
   return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.14),transparent_34%)]" />
-      <div className="absolute left-1/2 top-1/4 h-72 w-72 -translate-x-1/2 rounded-full bg-violet-500/20 blur-3xl" />
-      <div className="absolute right-0 top-2/3 h-80 w-80 translate-x-1/4 rounded-full bg-sky-400/20 blur-3xl" />
+    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[hsl(var(--background))]">
+      {/* Subtle radial ambient highlight */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(2,132,199,0.06),transparent_50%)]" />
+      {/* Precision grid pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.035] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:32px_32px]" 
+      />
+      {/* Subtle vignette border top */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
     </div>
   );
 }

@@ -4,14 +4,14 @@ import { cn } from "@/lib/utils";
 
 // ─── Base card ────────────────────────────────────────────────────────────────
 const cardVariants = cva(
-  "rounded-xl bg-card text-card-foreground border border-border transition-shadow",
+  "rounded-xl bg-card text-card-foreground border border-slate-800/80 shadow-md shadow-black/20 transition-all duration-200",
   {
     variants: {
-      shadow:    { none: "", sm: "shadow-sm", md: "shadow-md", lg: "shadow-lg" },
-      hoverable: { true: "hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer" },
+      shadow:    { none: "shadow-none", sm: "shadow-sm shadow-black/10", md: "shadow-md shadow-black/20", lg: "shadow-lg shadow-black/30" },
+      hoverable: { true: "hover:border-sky-500/40 hover:shadow-sky-950/20 hover:-translate-y-0.5 cursor-pointer" },
       padding:   { none: "", sm: "p-3", md: "p-5", lg: "p-6 md:p-8" },
     },
-    defaultVariants: { shadow: "sm", padding: "md" },
+    defaultVariants: { shadow: "md", padding: "md" },
   },
 );
 
@@ -28,21 +28,21 @@ Card.displayName = "Card";
 
 export const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("flex flex-col gap-1.5 pb-4", className)} {...props} />
+    <div ref={ref} className={cn("flex flex-col gap-1.5 pb-4 border-b border-slate-800/50 mb-4", className)} {...props} />
   ),
 );
 CardHeader.displayName = "CardHeader";
 
 export const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={cn("text-base font-semibold text-foreground leading-tight", className)} {...props} />
+    <h3 ref={ref} className={cn("text-base font-semibold text-slate-100 leading-tight tracking-tight", className)} {...props} />
   ),
 );
 CardTitle.displayName = "CardTitle";
 
 export const CardDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => (
-    <p ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />
+    <p ref={ref} className={cn("text-xs text-slate-400 leading-relaxed", className)} {...props} />
   ),
 );
 CardDescription.displayName = "CardDescription";
@@ -56,7 +56,7 @@ CardContent.displayName = "CardContent";
 
 export const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("flex items-center pt-4 border-t border-border mt-4", className)} {...props} />
+    <div ref={ref} className={cn("flex items-center pt-4 border-t border-slate-800/60 mt-4 text-xs text-slate-400", className)} {...props} />
   ),
 );
 CardFooter.displayName = "CardFooter";
@@ -72,10 +72,10 @@ export interface StatCardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const accentMap = {
-  primary: "text-[hsl(var(--primary))] bg-[hsl(var(--primary))]/10",
-  success: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30",
-  warning: "text-amber-600 bg-amber-50 dark:bg-amber-950/30",
-  danger:  "text-danger-600 bg-danger-50 dark:bg-danger-950/30",
+  primary: "text-sky-400 bg-sky-950/40 border border-sky-800/40",
+  success: "text-emerald-400 bg-emerald-950/40 border border-emerald-800/40",
+  warning: "text-amber-400 bg-amber-950/40 border border-amber-800/40",
+  danger:  "text-rose-400 bg-rose-950/40 border border-rose-800/40",
 };
 
 export function StatCard({ title, value, subtitle, icon, trend, colorAccent = "primary", className, ...props }: StatCardProps) {

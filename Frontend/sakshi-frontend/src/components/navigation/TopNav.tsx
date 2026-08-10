@@ -50,7 +50,7 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
     <header
       className={cn(
         "h-[60px] flex items-center gap-2 px-3 sm:px-4 shrink-0",
-        "border-b border-border bg-card/80 backdrop-blur-md",
+        "border-b border-slate-800/80 bg-[#0d1527]/90 backdrop-blur-md shadow-sm",
         className,
       )}
       role="banner"
@@ -58,7 +58,7 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
       {/* Mobile hamburger */}
       <button
         onClick={onMobileMenuToggle}
-        className="lg:hidden flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        className="lg:hidden flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
         aria-label="Toggle navigation menu"
       >
         <Menu className="h-5 w-5" />
@@ -70,7 +70,7 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
       </div>
 
       {/* ── Right actions ── */}
-      <div className="flex items-center gap-1 ml-auto">
+      <div className="flex items-center gap-1.5 ml-auto">
 
         {/* Search */}
         <AnimatePresence mode="wait">
@@ -90,24 +90,24 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
                 onKeyDown={e => { if (e.key === "Enter") handleSearch(); if (e.key === "Escape") { setSearchOpen(false); setSearchQuery(""); } }}
                 onBlur={() => { if (!searchQuery) setSearchOpen(false); }}
                 placeholder="Search cases…"
-                className="w-full h-8 rounded-lg border border-border bg-muted/60 pl-3 pr-8 text-xs focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent dark:bg-slate-800 dark:text-white"
+                className="w-full h-8 rounded-lg border border-slate-700/80 bg-slate-900/90 pl-3 pr-8 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 aria-label="Search"
               />
               <button onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-100">
                 <X className="h-3.5 w-3.5" />
               </button>
             </motion.div>
           ) : (
             <motion.div key="search-closed" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <Tooltip content="Search cases" side="bottom">
-          <button
-                onClick={() => { closeAll(); setSearchOpen(true); }}
-                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                aria-label="Search"
-              >
-                <Search className="h-4 w-4" />
-              </button>
+                <button
+                  onClick={() => { closeAll(); setSearchOpen(true); }}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800/70 transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
               </Tooltip>
             </motion.div>
           )}
@@ -117,7 +117,7 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
         <Tooltip content={`Switch to ${nextTheme} mode`} side="bottom">
           <button
             onClick={() => setTheme(nextTheme)}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800/70 transition-colors"
             aria-label={`Switch to ${nextTheme} mode`}
           >
             <ThemeIcon className="h-4 w-4" />
@@ -130,7 +130,7 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
             <div className="relative">
               <button
                 onClick={() => { setNotifOpen(v => !v); setProfileOpen(false); }}
-                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800/70 transition-colors"
                 aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
                 aria-expanded={notifOpen}
                 aria-haspopup="true"
@@ -140,7 +140,7 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
               {unreadCount > 0 && (
                 <motion.span
                   initial={{ scale: 0 }} animate={{ scale: 1 }}
-                  className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-white text-2xs font-bold pointer-events-none select-none"
+                  className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-white text-2xs font-bold pointer-events-none select-none shadow-sm shadow-rose-950/80"
                 >
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </motion.span>
@@ -151,13 +151,13 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
         </div>
 
         {/* Separator */}
-        <div className="h-5 w-px bg-border mx-1" aria-hidden />
+        <div className="h-5 w-px bg-slate-800 mx-1" aria-hidden />
 
         {/* User profile */}
         <div className="relative">
           <button
             onClick={() => { setProfileOpen(v => !v); setNotifOpen(false); }}
-            className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 border border-transparent hover:border-slate-800 hover:bg-slate-800/60 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
             aria-label="User menu"
             aria-expanded={profileOpen}
             aria-haspopup="true"
@@ -168,10 +168,10 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
               size="sm"
             />
             <div className="hidden md:block text-left min-w-0">
-              <p className="text-xs font-semibold text-foreground truncate max-w-[120px] leading-tight">
+              <p className="text-xs font-semibold text-slate-100 truncate max-w-[120px] leading-tight">
                 {displayUser?.name ?? "User"}
               </p>
-              <p className="text-2xs text-muted-foreground capitalize leading-tight">
+              <p className="text-2xs text-sky-400 font-medium capitalize leading-tight">
                 {displayUser?.role ?? "officer"}
               </p>
             </div>

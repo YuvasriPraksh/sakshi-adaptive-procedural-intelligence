@@ -8,50 +8,50 @@
 
 @layer base {
   :root {
-    /* ── Semantic color tokens (light) ──────────────────────────────────── */
-    --background:    214 32% 97%;   /* Very light gray  */
-    --foreground:    215 28% 17%;   /* Dark slate        */
+    /* ── Semantic color tokens ─────────────────────────────────────────── */
+    --background:    224 45% 6%;    /* Deep navy / near-black #070b15 */
+    --foreground:    210 40% 98%;   /* Pure white text #f8fafc */
 
-    --card:          0 0% 100%;
-    --card-foreground: 215 28% 17%;
+    --card:          222 36% 10%;   /* Dark navy / charcoal blue #0d1527 */
+    --card-foreground: 210 40% 98%;
 
-    --popover:       0 0% 100%;
-    --popover-foreground: 215 28% 17%;
+    --popover:       222 36% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary:       220 72% 35%;   /* Deep Navy Blue   */
-    --primary-foreground: 0 0% 100%;
+    --primary:       199 89% 48%;   /* Electric cyan / blue #0284c7 */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary:     217 91% 50%;   /* Royal Blue       */
-    --secondary-foreground: 0 0% 100%;
+    --secondary:     263 70% 58%;   /* Subtle violet #8b5cf6 */
+    --secondary-foreground: 210 40% 98%;
 
-    --muted:         214 32% 94%;
-    --muted-foreground: 215 16% 47%;
+    --muted:         222 30% 15%;   /* Low-contrast dark slate */
+    --muted-foreground: 215 20% 65%; /* Cool blue-gray #94a3b8 */
 
-    --accent:        160 84% 39%;   /* Emerald Green    */
-    --accent-foreground: 0 0% 100%;
+    --accent:        199 89% 48%;   /* Cyan accent */
+    --accent-foreground: 210 40% 98%;
 
-    --destructive:   350 89% 57%;   /* Red              */
+    --destructive:   350 84% 60%;   /* Refined red */
     --destructive-foreground: 0 0% 100%;
 
-    --warning:       38 92% 50%;    /* Amber            */
+    --warning:       38 92% 50%;    /* Amber */
     --warning-foreground: 0 0% 100%;
 
-    --success:       142 71% 45%;
+    --success:       160 84% 39%;   /* Emerald Green */
     --success-foreground: 0 0% 100%;
 
-    --border:        214 32% 88%;
-    --input:         214 32% 88%;
-    --ring:          220 72% 45%;
+    --border:        222 30% 16%;   /* Thin low-contrast border */
+    --input:         222 30% 18%;
+    --ring:          199 89% 48%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     /* ── Sidebar ─────────────────────────────────────────────────────────── */
-    --sidebar-bg:         220 72% 22%;  /* Deep Navy       */
-    --sidebar-fg:         214 60% 90%;
-    --sidebar-border:     220 72% 28%;
-    --sidebar-accent:     220 72% 30%;
-    --sidebar-accent-fg:  0 0% 100%;
-    --sidebar-ring:       217 91% 60%;
+    --sidebar-bg:         224 45% 4.5%; /* Darkest navy #050810 */
+    --sidebar-fg:         215 20% 80%;
+    --sidebar-border:     222 30% 14%;
+    --sidebar-accent:     222 30% 15%;
+    --sidebar-accent-fg:  210 40% 98%;
+    --sidebar-ring:       199 89% 48%;
 
     /* ── Typography scale ────────────────────────────────────────────────── */
     --font-sans:    "Inter", system-ui, -apple-system, sans-serif;
@@ -64,49 +64,49 @@
     --footer-height:           48px;
   }
 
-  /* ── Dark theme ──────────────────────────────────────────────────────── */
+  /* ── Dark theme (Explicit overrides match default for consistent dark SaaS UI) ── */
   .dark {
-    --background:    220 40% 8%;    /* Professional Navy */
-    --foreground:    214 60% 92%;
+    --background:    224 45% 6%;
+    --foreground:    210 40% 98%;
 
-    --card:          220 38% 11%;
-    --card-foreground: 214 60% 92%;
+    --card:          222 36% 10%;
+    --card-foreground: 210 40% 98%;
 
-    --popover:       220 38% 11%;
-    --popover-foreground: 214 60% 92%;
+    --popover:       222 36% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary:       217 91% 60%;
-    --primary-foreground: 220 40% 8%;
+    --primary:       199 89% 48%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary:     217 70% 50%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary:     263 70% 58%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted:         220 38% 16%;
-    --muted-foreground: 215 20% 60%;
+    --muted:         222 30% 15%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent:        160 84% 45%;
-    --accent-foreground: 220 40% 8%;
+    --accent:        199 89% 48%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive:   350 89% 57%;
+    --destructive:   350 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --warning:       38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --success:       142 71% 45%;
+    --success:       160 84% 39%;
     --success-foreground: 0 0% 100%;
 
-    --border:        220 38% 20%;
-    --input:         220 38% 20%;
-    --ring:          217 91% 60%;
+    --border:        222 30% 16%;
+    --input:         222 30% 18%;
+    --ring:          199 89% 48%;
 
     /* ── Sidebar (dark) ─────────────────────────────────────────────────── */
-    --sidebar-bg:         220 40% 6%;
-    --sidebar-fg:         214 60% 88%;
-    --sidebar-border:     220 38% 14%;
-    --sidebar-accent:     220 38% 14%;
-    --sidebar-accent-fg:  214 60% 92%;
-    --sidebar-ring:       217 91% 60%;
+    --sidebar-bg:         224 45% 4.5%;
+    --sidebar-fg:         215 20% 80%;
+    --sidebar-border:     222 30% 14%;
+    --sidebar-accent:     222 30% 15%;
+    --sidebar-accent-fg:  210 40% 98%;
+    --sidebar-ring:       199 89% 48%;
   }
 }
 
