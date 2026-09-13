@@ -51,14 +51,13 @@ async def seed_data():
                     new_user = User(
                         id=user_id,
                         email=email,
-                        hashedPassword="hashed_mock_password", # Not real auth yet
-                        isActive=True,
+                        name=full_name,
+                        passwordHash="hashed_mock_password",
+                        role=role.name if role else "police",
                         roleId=role.id if role else None
                     )
                     profile = UserProfile(
                         userId=user_id,
-                        fullName=full_name,
-                        designation=f"{role.name.capitalize()} Officer" if role else "Officer",
                         department=role.name if role else "police"
                     )
                     session.add(new_user)
