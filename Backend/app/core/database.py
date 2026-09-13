@@ -59,6 +59,21 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         finally:
             await session.close()
 
+# Compatibility wrapper used by legacy code and tests
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def async_session() -> AsyncGenerator[AsyncSession, None]:
+    """Legacy async_session alias as async context manager yielding an AsyncSession.
+    Allows `async with async_session() as db:` usage in existing code and tests.
+    """
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+
+
 
 # ── Lifecycle Helpers ─────────────────────────────────────────────────────────
 async def init_db() -> None:
