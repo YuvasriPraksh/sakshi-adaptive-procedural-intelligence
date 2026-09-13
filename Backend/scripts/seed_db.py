@@ -38,6 +38,12 @@ USERS_DATA = [
     ("fsl@sakshi.local",        "Analyst Verma",   "fsl"),
     ("cwc@sakshi.local",        "CWC Member",      "cwc"),
     ("supervisor@sakshi.local", "DCP Singh",       "supervisor"),
+    ("admin@sakshi.gov.in",      "Admin User",      "admin"),
+    ("officer@sakshi.gov.in",    "IO Sharma",       "police"),
+    ("doctor@sakshi.gov.in",     "Dr. Gupta",       "hospital"),
+    ("fsl@sakshi.gov.in",        "Analyst Verma",   "fsl"),
+    ("cwc@sakshi.gov.in",        "CWC Member",      "cwc"),
+    ("supervisor@sakshi.gov.in", "DCP Singh",       "supervisor"),
 ]
 
 
