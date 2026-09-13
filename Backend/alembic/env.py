@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 # Import application settings and Base metadata
 from app.core.config import settings
 from app.core.database import Base
+import app.models  # Required for Alembic to discover tables
 
 # ── Alembic Config Object ─────────────────────────────────────────────────────
 config = context.config

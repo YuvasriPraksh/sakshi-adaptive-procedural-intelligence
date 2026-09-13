@@ -81,7 +81,20 @@ def create_application() -> FastAPI:
 
     @app.get("/health", tags=["Health"], summary="Health check")
     async def health() -> JSONResponse:
-        return JSONResponse({"status": "healthy"})
+        db_status = "unreachable"
+        try:
+            from app.core.database import engine
+            from sqlalchemy import text
+            async with engine.begin() as conn:
+                await conn.execute(text("SELECT 1"))
+            db_status = "reachable"
+        except Exception as e:
+            db_status = f"unreachable: {str(e)}"
+        
+        return JSONResponse({
+            "status": "healthy",
+            "database": db_status
+        })
 
     return app
 
