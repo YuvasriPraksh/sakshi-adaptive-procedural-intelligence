@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
@@ -90,8 +91,8 @@ class CaseUpdate(BaseModel):
 
 class CaseOut(CaseBase):
     id: UUID
-    createdAt: str
-    updatedAt: str
+    createdAt: datetime
+    updatedAt: datetime
 
     model_config = ConfigDict(from_attributes=True)
 

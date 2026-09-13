@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.dependencies.auth import get_current_user_id, require_access_token
+from app.dependencies.auth import get_current_user, get_current_user_id, require_access_token
 from app.models.case import Case
 from app.models.workflow import Workflow
 from app.models.workflow_history import WorkflowHistory
@@ -20,6 +20,7 @@ from app.schemas.workflow import (
     WorkflowStageCreate,
     WorkflowStageOut,
 )
+from app.services import audit_chain_service
 from app.services.dpog_service import DPOGEngine
 
 router = APIRouter()
@@ -57,8 +58,8 @@ async def transition_workflow_stage(
     case_id: UUID,
     stage_id: str,
     payload: StageTransitionRequest,
-    user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     """
     Transition an obligation stage status in PostgreSQL and return the recalculated D-POG graph.
@@ -70,10 +71,7 @@ async def transition_workflow_stage(
     if not case:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found.")
 
-    # Fetch User
-    user_res = await db.execute(select(User).where(User.id == UUID(user_id)))
-    user = user_res.scalars().first()
-    user_display = f"{user.name} ({user.role})" if user else "Officer"
+    user_display = f"{current_user.name} ({current_user.role})"
 
     # Fetch Stages for Case
     stages_res = await db.execute(select(Workflow).where(Workflow.caseId == case_id).order_by(Workflow.order))
@@ -94,8 +92,8 @@ async def transition_workflow_stage(
     
     if payload.officer:
         target_stage.officer = payload.officer
-    elif not target_stage.officer and user:
-        target_stage.officer = user.name
+    elif not target_stage.officer:
+        target_stage.officer = current_user.name
 
     if payload.remarks:
         target_stage.remarks = payload.remarks
@@ -118,6 +116,17 @@ async def transition_workflow_stage(
     )
     db.add(history_entry)
 
+    await audit_chain_service.create_audit_event(
+        db,
+        module="workflow",
+        action="WORKFLOW_STAGE_COMPLETED" if target_stage.status == "completed" else "WORKFLOW_STAGE_UPDATED",
+        user=current_user.name,
+        user_role=current_user.role,
+        entity_id=str(target_stage.id),
+        case_id=case.id,
+        details=f"Stage {target_stage.title} transitioned to {target_stage.status}. Remarks: {payload.remarks}",
+        created_by=current_user.id
+    )
     await db.commit()
 
     # Refetch stages to evaluate updated graph
@@ -149,7 +158,12 @@ async def get_workflow_history(case_id: UUID, db: AsyncSession = Depends(get_db)
 
 
 @router.post("/cases/{case_id}", response_model=ApiResponse[WorkflowStageOut], dependencies=[Depends(require_access_token)])
-async def create_workflow_stage(case_id: UUID, payload: WorkflowStageCreate, db: AsyncSession = Depends(get_db)) -> dict:
+async def create_workflow_stage(
+    case_id: UUID,
+    payload: WorkflowStageCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> dict:
     result = await db.execute(select(Case).where(Case.id == case_id))
     case = result.scalars().first()
     if not case:
@@ -159,11 +173,29 @@ async def create_workflow_stage(case_id: UUID, payload: WorkflowStageCreate, db:
     stage = Workflow(**stage_data)
     db.add(stage)
     await db.flush()
+    await audit_chain_service.create_audit_event(
+        db,
+        module="workflow",
+        action="WORKFLOW_STAGE_CREATED",
+        user=current_user.name,
+        user_role=current_user.role,
+        entity_id=str(stage.id),
+        case_id=case_id,
+        details=f"Workflow stage {stage.title} created.",
+        created_by=current_user.id
+    )
+    await db.commit()
+    await db.refresh(stage)
     return {"success": True, "message": "Workflow stage created", "data": stage}
 
 
 @router.patch("/{stage_id}", response_model=ApiResponse[WorkflowStageOut], dependencies=[Depends(require_access_token)])
-async def update_workflow_stage(stage_id: UUID, payload: WorkflowStageCreate, db: AsyncSession = Depends(get_db)) -> dict:
+async def update_workflow_stage(
+    stage_id: UUID,
+    payload: WorkflowStageCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> dict:
     result = await db.execute(select(Workflow).where(Workflow.id == stage_id))
     stage = result.scalars().first()
     if not stage:
@@ -184,4 +216,17 @@ async def update_workflow_stage(stage_id: UUID, payload: WorkflowStageCreate, db
         )
         db.add(history)
     await db.flush()
+    await audit_chain_service.create_audit_event(
+        db,
+        module="workflow",
+        action="WORKFLOW_STAGE_UPDATED",
+        user=current_user.name,
+        user_role=current_user.role,
+        entity_id=str(stage.id),
+        case_id=stage.caseId,
+        details=f"Workflow stage {stage.title} updated.",
+        created_by=current_user.id
+    )
+    await db.commit()
+    await db.refresh(stage)
     return {"success": True, "message": "Workflow stage updated", "data": stage}

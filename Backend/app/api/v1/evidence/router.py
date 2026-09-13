@@ -7,7 +7,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.dependencies.auth import require_access_token
+from app.dependencies.auth import get_current_user, require_access_token
+from app.models.user import User
 from app.models.evidence import EvidenceItem
 from app.schemas.common import ApiResponse, PaginatedResponse
 from app.schemas.evidence import (
@@ -16,6 +17,7 @@ from app.schemas.evidence import (
     EvidenceTransferRequest,
     EvidenceVerifyResponse,
 )
+from app.services import audit_chain_service
 
 router = APIRouter()
 
@@ -124,7 +126,11 @@ async def get_evidence(evidence_id: UUID, db: AsyncSession = Depends(get_db)) ->
 
 
 @router.post("", response_model=ApiResponse[EvidenceItemOut], dependencies=[Depends(require_access_token)])
-async def create_evidence(payload: EvidenceItemCreate, db: AsyncSession = Depends(get_db)) -> dict:
+async def create_evidence(
+    payload: EvidenceItemCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> dict:
     evidence_data = payload.model_dump(exclude_none=True)
     evidence_data.setdefault("evidenceId", f"EVD-{uuid4().hex[:10].upper()}")
     evidence_data.setdefault("caseNumber", "UNKNOWN")
@@ -147,9 +153,29 @@ async def create_evidence(payload: EvidenceItemCreate, db: AsyncSession = Depend
     evidence_data.setdefault("sealNumber", f"SL-{uuid4().hex[:6].upper()}")
     evidence_data.setdefault("photographs", 0)
     evidence_data.setdefault("notes", "")
+    evidence_data.pop("versions", None)
     evidence = EvidenceItem(**evidence_data)
     db.add(evidence)
     await db.flush()
+    case_id_val = None
+    try:
+        if evidence.caseId:
+            case_id_val = UUID(evidence.caseId)
+    except Exception:
+        pass
+    await audit_chain_service.create_audit_event(
+        db,
+        module="evidence",
+        action="EVIDENCE_CREATED",
+        user=current_user.name,
+        user_role=current_user.role,
+        entity_id=str(evidence.id),
+        case_id=case_id_val,
+        details=f"Evidence {evidence.evidenceId} created.",
+        created_by=current_user.id
+    )
+    await db.commit()
+    await db.refresh(evidence)
     return {"success": True, "message": "Evidence registered", "data": evidence}
 
 
@@ -158,6 +184,7 @@ async def transfer_evidence(
     evidence_id: UUID,
     payload: EvidenceTransferRequest,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ) -> dict:
     result = await db.execute(select(EvidenceItem).where(EvidenceItem.id == evidence_id))
     evidence = result.scalars().first()
@@ -189,11 +216,35 @@ async def transfer_evidence(
     evidence.currentOfficer = payload.officer
     evidence.status = "in_transit"
     await db.flush()
+    
+    case_id_val = None
+    try:
+        if evidence.caseId:
+            case_id_val = UUID(evidence.caseId)
+    except Exception:
+        pass
+    await audit_chain_service.create_audit_event(
+        db,
+        module="evidence",
+        action="EVIDENCE_TRANSFERRED",
+        user=current_user.name,
+        user_role=current_user.role,
+        entity_id=str(evidence.id),
+        case_id=case_id_val,
+        details=f"Evidence {evidence.evidenceId} transfer initiated to {payload.toAgency}.",
+        created_by=current_user.id
+    )
+    await db.commit()
+    await db.refresh(evidence)
     return {"success": True, "message": "Transfer initiated", "data": evidence}
 
 
 @router.post("/{evidence_id}/verify", response_model=ApiResponse[EvidenceVerifyResponse], dependencies=[Depends(require_access_token)])
-async def verify_evidence(evidence_id: UUID, db: AsyncSession = Depends(get_db)) -> dict:
+async def verify_evidence(
+    evidence_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> dict:
     result = await db.execute(select(EvidenceItem).where(EvidenceItem.id == evidence_id))
     evidence = result.scalars().first()
     if not evidence:
@@ -202,6 +253,27 @@ async def verify_evidence(evidence_id: UUID, db: AsyncSession = Depends(get_db))
     evidence.verificationStatus = "verified" if match else "failed"
     evidence.lastVerified = datetime.now(timezone.utc).isoformat()
     await db.flush()
+    
+    case_id_val = None
+    try:
+        if evidence.caseId:
+            case_id_val = UUID(evidence.caseId)
+    except Exception:
+        pass
+    await audit_chain_service.create_audit_event(
+        db,
+        module="evidence",
+        action="EVIDENCE_VERIFIED" if match else "EVIDENCE_VERIFICATION_FAILED",
+        user=current_user.name,
+        user_role=current_user.role,
+        entity_id=str(evidence.id),
+        case_id=case_id_val,
+        details=f"Evidence {evidence.evidenceId} verification {'passed' if match else 'failed'}.",
+        status="success" if match else "error",
+        created_by=current_user.id
+    )
+    await db.commit()
+    
     return {
         "success": True,
         "message": "Verification complete",

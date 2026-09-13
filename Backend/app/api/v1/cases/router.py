@@ -7,7 +7,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.dependencies.auth import get_current_user_id, require_access_token
+from app.dependencies.auth import get_current_user, get_current_user_id, require_access_token
 from app.models.case import Case
 from app.models.user import User
 from app.models.workflow import Workflow
@@ -25,6 +25,7 @@ from app.schemas.workflow import (
     StageTransitionRequest,
     WorkflowStageOut,
 )
+from app.services import audit_chain_service
 from app.services.dpog_service import DPOGEngine
 
 router = APIRouter()
@@ -199,7 +200,11 @@ async def transition_workflow_stage(
 
 
 @router.post("", response_model=ApiResponse[CaseOut], dependencies=[Depends(require_access_token)])
-async def create_case(payload: CaseCreate, db: AsyncSession = Depends(get_db)) -> dict:
+async def create_case(
+    payload: CaseCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> dict:
     case_data = payload.model_dump(exclude_none=True)
     case_data.setdefault("caseNumber", f"SAKSHI/{uuid4().hex[:8]}")
     case_data.setdefault("firNumber", "FIR-UNKNOWN")
@@ -214,11 +219,29 @@ async def create_case(payload: CaseCreate, db: AsyncSession = Depends(get_db)) -
     case = Case(**case_data)
     db.add(case)
     await db.flush()
+    await audit_chain_service.create_audit_event(
+        db,
+        module="cases",
+        action="CASE_CREATED",
+        user=current_user.name,
+        user_role=current_user.role,
+        entity_id=str(case.id),
+        case_id=case.id,
+        details=f"Case {case.caseNumber} created.",
+        created_by=current_user.id
+    )
+    await db.commit()
+    await db.refresh(case)
     return {"success": True, "message": "Case registered", "data": case}
 
 
 @router.patch("/{case_id}", response_model=ApiResponse[CaseOut], dependencies=[Depends(require_access_token)])
-async def update_case(case_id: UUID, payload: CaseUpdate, db: AsyncSession = Depends(get_db)) -> dict:
+async def update_case(
+    case_id: UUID,
+    payload: CaseUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> dict:
     result = await db.execute(select(Case).where(Case.id == case_id))
     case = result.scalars().first()
     if not case:
@@ -227,6 +250,19 @@ async def update_case(case_id: UUID, payload: CaseUpdate, db: AsyncSession = Dep
     for key, value in update_data.items():
         setattr(case, key, value)
     await db.flush()
+    await audit_chain_service.create_audit_event(
+        db,
+        module="cases",
+        action="CASE_UPDATED",
+        user=current_user.name,
+        user_role=current_user.role,
+        entity_id=str(case.id),
+        case_id=case.id,
+        details=f"Case {case.caseNumber} updated fields: {list(update_data.keys())}.",
+        created_by=current_user.id
+    )
+    await db.commit()
+    await db.refresh(case)
     return {"success": True, "message": "Case updated", "data": case}
 
 
@@ -259,7 +295,12 @@ async def update_workflow_stage(
 
 
 @router.post("/{case_id}/assign", response_model=ApiResponse[Optional[dict]], dependencies=[Depends(require_access_token)])
-async def assign_officer(case_id: UUID, payload: CaseAssignRequest, db: AsyncSession = Depends(get_db)) -> dict:
+async def assign_officer(
+    case_id: UUID,
+    payload: CaseAssignRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> dict:
     result = await db.execute(select(Case).where(Case.id == case_id))
     case = result.scalars().first()
     if not case:
@@ -267,4 +308,16 @@ async def assign_officer(case_id: UUID, payload: CaseAssignRequest, db: AsyncSes
     case.assignedOfficerId = payload.officerId
     case.assignedOfficer = payload.officerId
     await db.flush()
+    await audit_chain_service.create_audit_event(
+        db,
+        module="cases",
+        action="CASE_ASSIGNED",
+        user=current_user.name,
+        user_role=current_user.role,
+        entity_id=str(case.id),
+        case_id=case.id,
+        details=f"Case {case.caseNumber} assigned to officer {payload.officerId}.",
+        created_by=current_user.id
+    )
+    await db.commit()
     return {"success": True, "message": "Officer assigned", "data": None}

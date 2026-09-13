@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.dependencies.auth import get_current_user_id, require_access_token
+from app.dependencies.auth import get_current_user, get_current_user_id, require_access_token
 from app.models.case import Case
 from app.models.user import User
 from app.models.workflow import Workflow
@@ -28,6 +28,7 @@ from app.services.ai_copilot_service import (
     generate_copilot_response,
 )
 from app.services.dpog_service import DPOGEngine
+from app.services import audit_chain_service
 
 router = APIRouter()
 
@@ -109,6 +110,19 @@ async def chat(
         formatted_lines.append(f"*Uncertainties: {'; '.join(copilot_result['uncertainties'])}*")
 
     copilot_result["formattedText"] = "\n".join(formatted_lines)
+
+    await audit_chain_service.create_audit_event(
+        db,
+        module="ai",
+        action="AI_PROCEDURAL_QUERY",
+        user=user.name if user else "Officer",
+        user_role=user.role if user else "unknown",
+        entity_id=None,
+        case_id=case.id,
+        details=f"Procedural copilot query: '{payload.message}'.",
+        created_by=user.id if user else None
+    )
+    await db.commit()
 
     return {
         "success": True,

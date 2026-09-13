@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Shield, Search, Filter, Download, ChevronDown,
@@ -12,7 +12,9 @@ import { Avatar }         from "@/components/ui/feedback/Avatar";
 import { Pagination }     from "@/components/ui/feedback/Pagination";
 import { cn }             from "@/lib/utils";
 import { formatDateTime, formatRelativeTime } from "@/utils/format";
-import { AUDIT_ENTRIES, type AuditModule, type AuditStatus } from "@/data/audit.data";
+import { type AuditModule, type AuditStatus } from "@/data/audit.data";
+import { auditService, type ChainVerificationResult } from "@/services/auditService";
+import type { AuditEntry } from "@/data/audit.data";
 
 const MODULE_CONFIG: Record<AuditModule, { icon: React.ElementType; color: string; bg: string }> = {
   cases:         { icon: FolderOpen,    color:"text-royal-600",   bg:"bg-royal-50   dark:bg-royal-950/30"   },
@@ -42,27 +44,71 @@ export default function AuditPage() {
   const [userFilter,     setUserFilter]     = useState("");
   const [page,           setPage]           = useState(1);
   const [viewMode,       setViewMode]       = useState<"timeline"|"table">("timeline");
+  
+  const [entries, setEntries] = useState<AuditEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [verificationResult, setVerificationResult] = useState<ChainVerificationResult | null>(null);
+  const [verifying, setVerifying] = useState(false);
 
-  const users = useMemo(() => [...new Set(AUDIT_ENTRIES.map(e => e.user))].sort(), []);
+  useEffect(() => {
+    const fetchAuditLogs = async () => {
+      setLoading(true);
+      try {
+        const response = await auditService.list({ 
+          page, 
+          pageSize: PAGE_SIZE,
+          module: moduleFilter || undefined,
+          status: statusFilter || undefined,
+          // Could add search or userFilter to the API later
+        });
+        if (response.success) {
+          setEntries(response.data);
+          // Normally we'd use response.pagination here, but for now we'll just set entries
+        }
+      } catch (error) {
+        console.error("Failed to fetch audit logs", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAuditLogs();
+  }, [page, moduleFilter, statusFilter, userFilter, search]);
+
+  const handleVerifyChain = async () => {
+    setVerifying(true);
+    try {
+      const response = await auditService.verifyChain("system");
+      if (response.success) {
+        setVerificationResult(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to verify audit chain", error);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const users = useMemo(() => [...new Set(entries.map(e => e.user))].sort(), [entries]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return AUDIT_ENTRIES.filter(e => {
+    return entries.filter(e => {
       if (q && !e.action.toLowerCase().includes(q) && !e.user.toLowerCase().includes(q) && !e.details.toLowerCase().includes(q)) return false;
       if (moduleFilter && e.module !== moduleFilter) return false;
       if (statusFilter && e.status !== statusFilter) return false;
       if (userFilter   && e.user  !== userFilter)   return false;
       return true;
     });
-  }, [search, moduleFilter, statusFilter, userFilter]);
+  }, [search, moduleFilter, statusFilter, userFilter, entries]);
 
-  const paginated = filtered.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+  // Ideally this comes from the backend API directly to avoid client side pagination of only the first page
+  const displayEntries = entries;
 
   const stats = {
-    total:   AUDIT_ENTRIES.length,
-    success: AUDIT_ENTRIES.filter(e=>e.status==="success").length,
-    warning: AUDIT_ENTRIES.filter(e=>e.status==="warning").length,
-    error:   AUDIT_ENTRIES.filter(e=>e.status==="error").length,
+    total:   entries.length,
+    success: entries.filter(e=>e.status==="success").length,
+    warning: entries.filter(e=>e.status==="warning").length,
+    error:   entries.filter(e=>e.status==="error").length,
   };
 
   return (
@@ -86,11 +132,32 @@ export default function AuditPage() {
                 </button>
               ))}
             </div>
+            <button 
+              onClick={handleVerifyChain}
+              disabled={verifying}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
+            >
+              <Shield className="h-3.5 w-3.5" /> {verifying ? "Verifying..." : "Verify Chain"}
+            </button>
             <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors">
               <Download className="h-3.5 w-3.5" /> Export
             </button>
           </div>
         </div>
+
+        {verificationResult && (
+          <div className={cn("p-4 rounded-lg border", verificationResult.valid ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-red-50 border-red-200 text-red-800")}>
+            <div className="flex items-center gap-2 mb-2">
+              {verificationResult.valid ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+              <h3 className="font-bold">{verificationResult.valid ? "Audit Chain Verified" : "Audit Chain Tampered!"}</h3>
+            </div>
+            <p className="text-sm">{verificationResult.message}</p>
+            <div className="mt-2 text-xs flex gap-4">
+              <span>Verified Events: {verificationResult.verified_events}</span>
+              <span>Total Chain Length: {verificationResult.chain_length}</span>
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-3">
@@ -125,10 +192,12 @@ export default function AuditPage() {
         </div>
 
         {/* Content */}
-        {viewMode === "timeline" ? (
-          <TimelineView entries={paginated} />
+        {loading ? (
+           <div className="py-20 text-center"><p className="text-muted-foreground">Loading audit logs...</p></div>
+        ) : viewMode === "timeline" ? (
+          <TimelineView entries={displayEntries} />
         ) : (
-          <TableView entries={paginated} />
+          <TableView entries={displayEntries} />
         )}
 
         {/* Pagination */}
@@ -142,7 +211,7 @@ export default function AuditPage() {
 }
 
 // ─── Timeline View ─────────────────────────────────────────────────────────────
-function TimelineView({ entries }: { entries: typeof AUDIT_ENTRIES }) {
+function TimelineView({ entries }: { entries: AuditEntry[] }) {
   if (entries.length === 0) return (
     <div className="rounded-xl border border-border bg-card py-16 text-center">
       <Shield className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
@@ -202,7 +271,7 @@ function TimelineView({ entries }: { entries: typeof AUDIT_ENTRIES }) {
 }
 
 // ─── Table View ────────────────────────────────────────────────────────────────
-function TableView({ entries }: { entries: typeof AUDIT_ENTRIES }) {
+function TableView({ entries }: { entries: AuditEntry[] }) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="overflow-x-auto">

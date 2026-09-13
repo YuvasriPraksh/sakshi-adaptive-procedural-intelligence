@@ -26,6 +26,7 @@ from app.schemas.auth import (
     UserOut,
 )
 from app.schemas.common import ApiResponse
+from app.services import audit_chain_service
 
 router = APIRouter()
 
@@ -39,10 +40,33 @@ async def login(
     result = await db.execute(query)
     user = result.scalars().first()
     if not user or not verify_password(credentials.password, user.passwordHash):
+        # Log failure (best effort)
+        await audit_chain_service.create_audit_event(
+            db,
+            module="auth",
+            action="LOGIN_FAILURE",
+            user=credentials.email.lower(),
+            user_role="unknown",
+            details="Invalid email or password.",
+            status="error"
+        )
+        await db.commit()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password.",
         )
+
+    # Log success
+    await audit_chain_service.create_audit_event(
+        db,
+        module="auth",
+        action="LOGIN_SUCCESS",
+        user=user.name,
+        user_role=user.role,
+        details="User logged in successfully.",
+        created_by=user.id
+    )
+    await db.commit()
 
     tokens = AuthTokens(
         accessToken=create_access_token(subject=str(user.id)),

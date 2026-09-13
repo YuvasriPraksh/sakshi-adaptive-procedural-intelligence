@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
@@ -79,7 +80,7 @@ class EvidenceAuditLog(BaseModel):
 
 class EvidenceItemBase(BaseModel):
     evidenceId: str
-    caseId: str
+    caseId: UUID
     caseNumber: str
     type: str
     description: str
@@ -117,8 +118,8 @@ class EvidenceItemCreate(EvidenceItemBase):
 
 class EvidenceItemOut(EvidenceItemBase):
     id: UUID
-    createdAt: str
-    updatedAt: str
+    createdAt: datetime
+    updatedAt: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
