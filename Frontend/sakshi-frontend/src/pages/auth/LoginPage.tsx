@@ -18,10 +18,12 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const DEMO_ACCOUNTS = [
-  { role: "Admin",      email: "admin@sakshi.gov.in",      password: "Admin@123",     color: "bg-navy-100 text-navy-700 border-navy-200" },
-  { role: "Police",     email: "police@sakshi.gov.in",     password: "Police@123",    color: "bg-royal-100 text-royal-700 border-royal-200" },
-  { role: "Hospital",   email: "hospital@sakshi.gov.in",   password: "Hospital@123",  color: "bg-emerald-100 text-emerald-700 border-emerald-200" },
-  { role: "Supervisor", email: "supervisor@sakshi.gov.in", password: "Supervisor@123",color: "bg-amber-100 text-amber-700 border-amber-200" },
+  { role: "Admin",      email: "admin@sakshi.local",      password: "SAKSHI@Demo2026", color: "bg-navy-100 text-navy-700 border-navy-200" },
+  { role: "Police",     email: "officer@sakshi.local",    password: "SAKSHI@Demo2026", color: "bg-royal-100 text-royal-700 border-royal-200" },
+  { role: "Hospital",   email: "doctor@sakshi.local",     password: "SAKSHI@Demo2026", color: "bg-emerald-100 text-emerald-700 border-emerald-200" },
+  { role: "FSL",        email: "fsl@sakshi.local",        password: "SAKSHI@Demo2026", color: "bg-purple-100 text-purple-700 border-purple-200" },
+  { role: "CWC",        email: "cwc@sakshi.local",        password: "SAKSHI@Demo2026", color: "bg-pink-100 text-pink-700 border-pink-200" },
+  { role: "Supervisor", email: "supervisor@sakshi.local", password: "SAKSHI@Demo2026", color: "bg-amber-100 text-amber-700 border-amber-200" },
 ];
 
 export default function LoginPage() {

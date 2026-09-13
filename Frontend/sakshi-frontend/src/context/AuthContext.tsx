@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useReducer, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useReducer, type ReactNode } from "react";
 import type { User, UserRole } from "@/features/auth/types";
 import { storage } from "@/utils/storage";
 import { STORAGE_KEYS } from "@/constants/app.constants";
+import { authService } from "@/services/authService";
 
 // ─── State ────────────────────────────────────────────────────────────────────
 interface AuthState {
@@ -16,7 +17,7 @@ const initialState: AuthState = {
   user:            null,
   accessToken:     storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN, ""),
   isAuthenticated: Boolean(storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN, "")),
-  isLoading:       false,
+  isLoading:       Boolean(storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN, "")),
   error:           null,
 };
 
@@ -44,7 +45,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
     case "AUTH_FAILURE":
       return { ...state, isLoading: false, error: action.payload };
     case "AUTH_LOGOUT":
-      return { ...initialState, accessToken: null, isAuthenticated: false };
+      return { ...initialState, accessToken: null, isAuthenticated: false, isLoading: false };
     case "USER_UPDATED":
       return { ...state, user: action.payload };
     default:
@@ -83,6 +84,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setLoading  = useCallback((v: boolean) => v ? dispatch({ type: "AUTH_LOADING" }) : void 0, []);
   const setError    = useCallback((msg: string | null) => msg ? dispatch({ type: "AUTH_FAILURE", payload: msg }) : void 0, []);
 
+  // Hydrate user session on mount if access token exists
+  useEffect(() => {
+    const token = storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN, "");
+    if (!token) return;
+
+    let isMounted = true;
+    authService.me()
+      .then((res) => {
+        if (isMounted && res.success && res.data) {
+          dispatch({ type: "AUTH_SUCCESS", payload: { user: res.data, accessToken: token } });
+        } else if (isMounted) {
+          logout();
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          logout();
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [logout]);
+
   const hasRole = useCallback(
     (role: UserRole | UserRole[]) => {
       if (!state.user) return false;
@@ -105,3 +131,4 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
+
