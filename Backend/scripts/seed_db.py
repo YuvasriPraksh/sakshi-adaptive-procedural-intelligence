@@ -126,38 +126,65 @@ async def seed_data():
                     state="State",
                     status="investigation",
                     priority="high",
-                    currentStage="FSL Report Pending",
-                    currentStageOrder=4,
-                    totalStages=10,
-                    remarks="Synthetic demo case for Phase 2A/2B",
+                    currentStage="FSL Analysis & Forensic Report",
+                    currentStageOrder=6,
+                    totalStages=9,
+                    remarks="Synthetic POCSO investigation case for D-POG digital twin demonstration",
                 )
                 session.add(pocso_case)
                 await session.flush()
                 print(f"  [+] Created case: {case_number}")
-
-                workflows = [
-                    {"title": "FIR Registered",       "status": "completed", "order": 1, "dept": "police"},
-                    {"title": "Case Intake",           "status": "completed", "order": 2, "dept": "police"},
-                    {"title": "Medical Examination",   "status": "completed", "order": 3, "dept": "hospital"},
-                    {"title": "Evidence Collection",   "status": "completed", "order": 4, "dept": "police"},
-                    {"title": "FSL Report",            "status": "pending",   "order": 5, "dept": "fsl"},
-                    {"title": "Evidence Review",       "status": "pending",   "order": 6, "dept": "police"},
-                    {"title": "Prosecution Readiness", "status": "pending",   "order": 7, "dept": "police"},
-                ]
-                for wf in workflows:
-                    session.add(Workflow(
-                        caseId=pocso_case.id,
-                        stageId=f"stage_{wf['order']}",
-                        title=wf["title"],
-                        description=f"Description for {wf['title']}",
-                        status=wf["status"],
-                        order=wf["order"],
-                        department=wf["dept"],
-                    ))
-                print(f"  [+] Created {len(workflows)} workflow stages")
             else:
+                pocso_case.totalStages = 9
+                pocso_case.currentStage = "FSL Analysis & Forensic Report"
+                pocso_case.currentStageOrder = 6
                 print(f"  [=] Case exists: {case_number}")
 
+            # 9-Stage POCSO D-POG Standard Template Seed
+            from app.core.dpog_templates import POCSO_TEMPLATE
+            existing_wf_res = await session.execute(select(Workflow).filter_by(caseId=pocso_case.id))
+            existing_wfs = {w.stageId: w for w in existing_wf_res.scalars().all()}
+
+            initial_status_map = {
+                "stage_1": ("completed", "IO Sharma", datetime.now(timezone.utc).isoformat()),
+                "stage_2": ("completed", "CWC Member", datetime.now(timezone.utc).isoformat()),
+                "stage_3": ("completed", "Dr. Gupta", datetime.now(timezone.utc).isoformat()),
+                "stage_4": ("completed", "IO Sharma", datetime.now(timezone.utc).isoformat()),
+                "stage_5": ("completed", "IO Sharma", datetime.now(timezone.utc).isoformat()),
+                "stage_6": ("in_progress", "Analyst Verma", None),
+                "stage_7": ("pending", None, None),
+                "stage_8": ("pending", None, None),
+                "stage_9": ("pending", None, None),
+            }
+
+            for t_stg in POCSO_TEMPLATE["stages"]:
+                s_id = t_stg["stageId"]
+                status, officer, comp_date = initial_status_map.get(s_id, ("pending", None, None))
+                if s_id in existing_wfs:
+                    wf = existing_wfs[s_id]
+                    wf.title = t_stg["title"]
+                    wf.description = t_stg["description"]
+                    wf.order = t_stg["order"]
+                    wf.department = t_stg["department"]
+                    wf.deadline = t_stg.get("deadlineLabel")
+                    wf.status = status
+                    wf.officer = officer
+                    wf.completedDate = comp_date
+                else:
+                    wf = Workflow(
+                        caseId=pocso_case.id,
+                        stageId=s_id,
+                        order=t_stg["order"],
+                        title=t_stg["title"],
+                        description=t_stg["description"],
+                        department=t_stg["department"],
+                        deadline=t_stg.get("deadlineLabel"),
+                        status=status,
+                        officer=officer,
+                        completedDate=comp_date,
+                    )
+                    session.add(wf)
+            print(f"  [+] Synchronized 9 standard D-POG procedural stages for {case_number}")
             await session.commit()
 
             # ── 5. Inline verification ────────────────────────────────────────

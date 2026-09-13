@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Any, List, Optional
 from uuid import UUID, uuid4
 
@@ -6,8 +7,11 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.dependencies.auth import require_access_token
+from app.dependencies.auth import get_current_user_id, require_access_token
 from app.models.case import Case
+from app.models.user import User
+from app.models.workflow import Workflow
+from app.models.workflow_history import WorkflowHistory
 from app.schemas.case import (
     CaseAssignRequest,
     CaseCreate,
@@ -16,6 +20,12 @@ from app.schemas.case import (
     CaseWorkflowUpdate,
 )
 from app.schemas.common import ApiResponse, PaginatedResponse, Pagination
+from app.schemas.workflow import (
+    ProceduralGraphResponse,
+    StageTransitionRequest,
+    WorkflowStageOut,
+)
+from app.services.dpog_service import DPOGEngine
 
 router = APIRouter()
 
@@ -86,10 +96,112 @@ async def get_case(case_id: UUID, db: AsyncSession = Depends(get_db)) -> dict:
     return {"success": True, "message": "Case retrieved", "data": case}
 
 
+# ── D-POG Dynamic Procedural Obligation Graph APIs ────────────────────────────
+@router.get("/{case_id}/procedural-graph", response_model=ApiResponse[ProceduralGraphResponse], dependencies=[Depends(require_access_token)])
+async def get_procedural_graph(case_id: UUID, db: AsyncSession = Depends(get_db)) -> dict:
+    """
+    Retrieve the dynamic Procedural Obligation Graph (D-POG) for a case.
+    Evaluates real-time prerequisite states, root blockers, downstream impacts, and readiness score.
+    """
+    case_res = await db.execute(select(Case).where(Case.id == case_id))
+    case = case_res.scalars().first()
+    if not case:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found.")
+
+    stages_res = await db.execute(select(Workflow).where(Workflow.caseId == case_id).order_by(Workflow.order))
+    stages = stages_res.scalars().all()
+
+    engine = DPOGEngine(crime_type=case.crimeType or "POCSO")
+    graph_data = engine.evaluate_graph(case_id=str(case.id), case_number=case.caseNumber, db_stages=stages)
+
+    return {
+        "success": True,
+        "message": "Dynamic Procedural Obligation Graph evaluated successfully",
+        "data": graph_data,
+    }
+
+
+@router.post("/{case_id}/workflow/{stage_id}/transition", response_model=ApiResponse[ProceduralGraphResponse])
+async def transition_workflow_stage(
+    case_id: UUID,
+    stage_id: str,
+    payload: StageTransitionRequest,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """
+    Transition an obligation stage status in PostgreSQL and return the recalculated D-POG graph.
+    Automatically logs state change to WorkflowHistory and updates dependent nodes.
+    """
+    case_res = await db.execute(select(Case).where(Case.id == case_id))
+    case = case_res.scalars().first()
+    if not case:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found.")
+
+    user_res = await db.execute(select(User).where(User.id == UUID(user_id)))
+    user = user_res.scalars().first()
+    user_display = f"{user.name} ({user.role})" if user else "Officer"
+
+    stages_res = await db.execute(select(Workflow).where(Workflow.caseId == case_id).order_by(Workflow.order))
+    stages = stages_res.scalars().all()
+
+    target_stage = None
+    for stg in stages:
+        if stg.stageId == stage_id or str(stg.id) == stage_id:
+            target_stage = stg
+            break
+
+    if not target_stage:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Stage {stage_id} not found in case workflow.")
+
+    previous_status = target_stage.status
+    target_stage.status = payload.newStatus.lower()
+    
+    if payload.officer:
+        target_stage.officer = payload.officer
+    elif not target_stage.officer and user:
+        target_stage.officer = user.name
+
+    if payload.remarks:
+        target_stage.remarks = payload.remarks
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    if target_stage.status == "completed":
+        target_stage.completedDate = payload.completedDate or now_iso
+    else:
+        target_stage.completedDate = None
+
+    history_entry = WorkflowHistory(
+        caseId=case.id,
+        workflowId=target_stage.id,
+        previousStatus=previous_status,
+        newStatus=target_stage.status,
+        changedBy=user_display,
+        changedAt=now_iso,
+        remarks=payload.remarks or f"Transitioned stage to {target_stage.status}",
+    )
+    db.add(history_entry)
+
+    await db.commit()
+
+    # Refetch and evaluate updated graph
+    stages_res = await db.execute(select(Workflow).where(Workflow.caseId == case_id).order_by(Workflow.order))
+    updated_stages = stages_res.scalars().all()
+
+    engine = DPOGEngine(crime_type=case.crimeType or "POCSO")
+    updated_graph = engine.evaluate_graph(case_id=str(case.id), case_number=case.caseNumber, db_stages=updated_stages)
+
+    return {
+        "success": True,
+        "message": f"Stage {target_stage.title} transitioned to {target_stage.status} successfully",
+        "data": updated_graph,
+    }
+
+
 @router.post("", response_model=ApiResponse[CaseOut], dependencies=[Depends(require_access_token)])
 async def create_case(payload: CaseCreate, db: AsyncSession = Depends(get_db)) -> dict:
     case_data = payload.model_dump(exclude_none=True)
-    case_data.setdefault("caseNumber", f"SAKSHI/{uuid4().hex[:8]}" )
+    case_data.setdefault("caseNumber", f"SAKSHI/{uuid4().hex[:8]}")
     case_data.setdefault("firNumber", "FIR-UNKNOWN")
     case_data.setdefault("crimeType", "other")
     case_data.setdefault("victimCode", "UNKNOWN")

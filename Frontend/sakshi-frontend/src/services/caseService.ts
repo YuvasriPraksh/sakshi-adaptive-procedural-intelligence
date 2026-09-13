@@ -1,11 +1,11 @@
 /**
- * caseService — All case management API calls.
- * Phase 2B: DEMO_MODE removed. Routes directly to FastAPI /cases/* endpoints.
- * Mock data imports retained for reference during later cleanup, but are NOT used.
+ * caseService — All case management & D-POG workflow API calls.
+ * Phase 3: D-POG Procedural Digital Twin Engine integration.
  */
 import apiClient from "./api/client";
 import type { ApiResponse, PaginatedResponse } from "@/types/common.types";
 import type { InvestigationCase, WorkflowStage } from "@/types/case.types";
+import type { ProceduralGraphData, StageTransitionPayload } from "@/types/dpog.types";
 
 export interface CaseFilters {
   status?:   string;
@@ -44,6 +44,24 @@ export const caseService = {
 
   async assignOfficer(caseId: string, officerId: string): Promise<ApiResponse<void>> {
     const res = await apiClient.post<ApiResponse<void>>(`/cases/${caseId}/assign`, { officerId });
+    return res.data;
+  },
+
+  // ── D-POG Dynamic Procedural Obligation Graph APIs ──────────────────────────
+  async getProceduralGraph(caseId: string): Promise<ApiResponse<ProceduralGraphData>> {
+    const res = await apiClient.get<ApiResponse<ProceduralGraphData>>(`/cases/${caseId}/procedural-graph`);
+    return res.data;
+  },
+
+  async transitionWorkflowStage(
+    caseId: string,
+    stageId: string,
+    payload: StageTransitionPayload,
+  ): Promise<ApiResponse<ProceduralGraphData>> {
+    const res = await apiClient.post<ApiResponse<ProceduralGraphData>>(
+      `/cases/${caseId}/workflow/${stageId}/transition`,
+      payload,
+    );
     return res.data;
   },
 };
