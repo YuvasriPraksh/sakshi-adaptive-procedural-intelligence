@@ -1,0 +1,284 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SAKSHI Design System — CSS Custom Properties
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  :root {
+    /* ── Semantic color tokens ─────────────────────────────────────────── */
+    --background:    224 45% 6%;    /* Deep navy / near-black #070b15 */
+    --foreground:    210 40% 98%;   /* Pure white text #f8fafc */
+
+    --card:          222 36% 10%;   /* Dark navy / charcoal blue #0d1527 */
+    --card-foreground: 210 40% 98%;
+
+    --popover:       222 36% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary:       199 89% 48%;   /* Electric cyan / blue #0284c7 */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary:     263 70% 58%;   /* Subtle violet #8b5cf6 */
+    --secondary-foreground: 210 40% 98%;
+
+    --muted:         222 30% 15%;   /* Low-contrast dark slate */
+    --muted-foreground: 215 20% 65%; /* Cool blue-gray #94a3b8 */
+
+    --accent:        199 89% 48%;   /* Cyan accent */
+    --accent-foreground: 210 40% 98%;
+
+    --destructive:   350 84% 60%;   /* Refined red */
+    --destructive-foreground: 0 0% 100%;
+
+    --warning:       38 92% 50%;    /* Amber */
+    --warning-foreground: 0 0% 100%;
+
+    --success:       160 84% 39%;   /* Emerald Green */
+    --success-foreground: 0 0% 100%;
+
+    --border:        222 30% 16%;   /* Thin low-contrast border */
+    --input:         222 30% 18%;
+    --ring:          199 89% 48%;
+
+    --radius: 0.75rem;
+
+    /* ── Sidebar ─────────────────────────────────────────────────────────── */
+    --sidebar-bg:         224 45% 4.5%; /* Darkest navy #050810 */
+    --sidebar-fg:         215 20% 80%;
+    --sidebar-border:     222 30% 14%;
+    --sidebar-accent:     222 30% 15%;
+    --sidebar-accent-fg:  210 40% 98%;
+    --sidebar-ring:       199 89% 48%;
+
+    /* ── Typography scale ────────────────────────────────────────────────── */
+    --font-sans:    "Inter", system-ui, -apple-system, sans-serif;
+    --font-mono:    "JetBrains Mono", "Fira Code", Consolas, monospace;
+
+    /* ── Layout ──────────────────────────────────────────────────────────── */
+    --sidebar-width:          260px;
+    --sidebar-width-collapsed: 64px;
+    --topbar-height:           60px;
+    --footer-height:           48px;
+  }
+
+  /* ── Dark theme (Explicit overrides match default for consistent dark SaaS UI) ── */
+  .dark {
+    --background:    224 45% 6%;
+    --foreground:    210 40% 98%;
+
+    --card:          222 36% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover:       222 36% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary:       199 89% 48%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary:     263 70% 58%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted:         222 30% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent:        199 89% 48%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive:   350 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning:       38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --success:       160 84% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --border:        222 30% 16%;
+    --input:         222 30% 18%;
+    --ring:          199 89% 48%;
+
+    /* ── Sidebar (dark) ─────────────────────────────────────────────────── */
+    --sidebar-bg:         224 45% 4.5%;
+    --sidebar-fg:         215 20% 80%;
+    --sidebar-border:     222 30% 14%;
+    --sidebar-accent:     222 30% 15%;
+    --sidebar-accent-fg:  210 40% 98%;
+    --sidebar-ring:       199 89% 48%;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Base resets & defaults
+   ═══════════════════════════════════════════════════════════════════════════ */
+@layer base {
+  *, *::before, *::after {
+    @apply border-border box-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans text-sm leading-relaxed;
+    font-feature-settings: "rlig" 1, "calt" 1, "kern" 1;
+  }
+
+  /* Headings */
+  h1 { @apply text-4xl font-bold tracking-tight text-foreground; }
+  h2 { @apply text-3xl font-semibold tracking-tight text-foreground; }
+  h3 { @apply text-2xl font-semibold text-foreground; }
+  h4 { @apply text-xl font-semibold text-foreground; }
+  h5 { @apply text-lg font-medium text-foreground; }
+  h6 { @apply text-base font-medium text-foreground; }
+
+  p  { @apply text-sm text-foreground leading-relaxed; }
+
+  a  {
+    @apply text-primary underline-offset-4 hover:underline transition-colors;
+  }
+
+  code {
+    @apply font-mono text-xs bg-muted px-1 py-0.5 rounded text-foreground;
+  }
+
+  pre {
+    @apply font-mono text-xs bg-muted p-4 rounded-lg overflow-x-auto;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar       { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/40; }
+
+  /* Focus ring */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+
+  /* Table defaults */
+  table { @apply w-full text-sm; }
+  thead { @apply border-b border-border; }
+  th    { @apply px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider; }
+  td    { @apply px-4 py-3 text-sm; }
+  tbody tr { @apply border-b border-border last:border-0 hover:bg-muted/40 transition-colors; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Utility classes
+   ═══════════════════════════════════════════════════════════════════════════ */
+@layer utilities {
+  /* Text balance */
+  .text-balance { text-wrap: balance; }
+
+  /* Truncate multi-line */
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* Sidebar widths */
+  .w-sidebar           { width: var(--sidebar-width); }
+  .w-sidebar-collapsed { width: var(--sidebar-width-collapsed); }
+
+  /* Glass morphism */
+  .glass {
+    @apply bg-white/80 dark:bg-navy-900/80 backdrop-blur-md border border-white/20 dark:border-navy-700/30;
+  }
+
+  /* Shimmer skeleton */
+  .shimmer {
+    background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--muted-foreground) / 0.08) 50%, hsl(var(--muted)) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s infinite linear;
+  }
+
+  /* Status dot */
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full flex-shrink-0;
+  }
+
+  /* Divider */
+  .divider {
+    @apply border-t border-border my-4;
+  }
+
+  /* Full-page center */
+  .center-page {
+    @apply flex min-h-screen items-center justify-center;
+  }
+
+  /* Scrollable panel */
+  .scrollable {
+    @apply overflow-y-auto;
+    scrollbar-width: thin;
+  }
+
+  /* Hide scrollbar */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Page content padding */
+  .page-padding { @apply px-4 py-6 sm:px-6 lg:px-8; }
+
+  /* Card shadow */
+  .card-shadow        { box-shadow: var(--tw-shadow, 0 0 0 1px hsl(var(--border)), 0 2px 4px -1px rgb(0 0 0 / 0.06)); }
+  .card-shadow-hover  { box-shadow: 0 0 0 1px hsl(var(--border)), 0 8px 20px -4px rgb(0 0 0 / 0.12); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Component layer — shared patterns
+   ═══════════════════════════════════════════════════════════════════════════ */
+@layer components {
+  /* Input base */
+  .input-base {
+    @apply flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm
+           placeholder:text-muted-foreground
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+           disabled:cursor-not-allowed disabled:opacity-50
+           transition-colors;
+  }
+
+  /* Label base */
+  .label-base {
+    @apply text-sm font-medium text-foreground leading-none;
+  }
+
+  /* Badge base */
+  .badge-base {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  /* Section header */
+  .section-header {
+    @apply flex items-center justify-between mb-4;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-foreground;
+  }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium
+           transition-colors cursor-pointer select-none;
+  }
+
+  .nav-item-active {
+    @apply bg-sidebar-accent text-sidebar-accent-foreground;
+  }
+
+  .nav-item-inactive {
+    @apply text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground;
+  }
+}
