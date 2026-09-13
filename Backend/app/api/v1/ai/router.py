@@ -1,11 +1,19 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
+from uuid import UUID
 
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies.auth import require_access_token
+from app.core.database import get_db
+from app.dependencies.auth import get_current_user_id, require_access_token
+from app.models.case import Case
+from app.models.user import User
+from app.models.workflow import Workflow
 from app.schemas.ai import (
+    AIChatRequest,
+    AIChatResponse,
     AIRecommendation,
     AISummary,
     MissingProcedure,
@@ -15,146 +23,229 @@ from app.schemas.ai import (
     RiskReport,
 )
 from app.schemas.common import ApiResponse
+from app.services.ai_copilot_service import (
+    build_case_procedural_context,
+    generate_copilot_response,
+)
+from app.services.dpog_service import DPOGEngine
 
 router = APIRouter()
 
 
-def _mock_summary(case_id: str) -> AISummary:
-    return AISummary(
-        caseId=case_id,
-        caseNumber=f"SAKSHI/{case_id[-6:].upper()}",
-        summary="Investigation is progressing; forensic analysis and medical reports are pending.",
-        currentStage="FSL Examination",
-        investigationStatus="delayed",
-        pendingTasks=["Submit FSL report", "Schedule witness interview", "Confirm victim statement"],
-        missingDocuments=["Medical report", "Witness statement", "FSL chain-of-custody log"],
-        delayReasons=["Forensic lab backlog", "Medical examiner availability"],
-        suggestedNextStep="Coordinate with FSL and hospital to finalize evidence collection and prepare court brief.",
-        generatedAt=datetime.utcnow().isoformat() + "Z",
+async def _get_case_and_stages(case_id_str: str, db: AsyncSession):
+    try:
+        case_uuid = UUID(case_id_str)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Case ID format.")
+    
+    case_res = await db.execute(select(Case).where(Case.id == case_uuid))
+    case = case_res.scalars().first()
+    if not case:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found.")
+
+    stages_res = await db.execute(select(Workflow).where(Workflow.caseId == case_uuid).order_by(Workflow.order))
+    stages = stages_res.scalars().all()
+    return case, stages
+
+
+@router.post("/chat", response_model=ApiResponse[AIChatResponse], dependencies=[Depends(require_access_token)])
+async def chat(
+    payload: AIChatRequest,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """
+    AI Procedural Copilot chat endpoint.
+    Retrieves authorized case state, runs deterministic D-POG graph evaluation, builds
+    structured context, and calls Gemini (with fallback to grounded rule-based engine).
+    """
+    user = None
+    if user_id:
+        try:
+            user_res = await db.execute(select(User).where(User.id == UUID(user_id)))
+            user = user_res.scalars().first()
+        except Exception:
+            pass
+
+    # Determine case context
+    case = None
+    stages = []
+    if payload.caseId:
+        case, stages = await _get_case_and_stages(payload.caseId, db)
+    else:
+        # Fallback to first active case if none provided
+        first_case_res = await db.execute(select(Case).order_by(Case.createdAt.desc()).limit(1))
+        case = first_case_res.scalars().first()
+        if case:
+            stages_res = await db.execute(select(Workflow).where(Workflow.caseId == case.id).order_by(Workflow.order))
+            stages = stages_res.scalars().all()
+
+    if not case:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active case found for AI context.")
+
+    # 1. Build deterministic D-POG structured context
+    context = build_case_procedural_context(case=case, stages=stages, user=user)
+
+    # 2. Call grounded Gemini Copilot (with deterministic D-POG fallback)
+    copilot_result = await generate_copilot_response(
+        case_context=context,
+        user_message=payload.message,
+        intent=payload.intent,
     )
 
+    # Construct clean formatted text for standard chat view
+    formatted_lines = [copilot_result.get("summary", "")]
+    if copilot_result.get("observations"):
+        formatted_lines.append("\n**Key Observations (D-POG State):**")
+        for obs in copilot_result["observations"]:
+            formatted_lines.append(f"- {obs}")
+    if copilot_result.get("recommendations"):
+        formatted_lines.append("\n**Operational Recommendations (Human Review Required):**")
+        for rec in copilot_result["recommendations"]:
+            formatted_lines.append(f"- {rec}")
+    if copilot_result.get("basis"):
+        formatted_lines.append(f"\n*Basis: {', '.join(copilot_result['basis'])}*")
+    if copilot_result.get("uncertainties") and copilot_result["uncertainties"]:
+        formatted_lines.append(f"*Uncertainties: {'; '.join(copilot_result['uncertainties'])}*")
 
-def _mock_risk(case_id: str) -> RiskReport:
-    return RiskReport(
-        caseId=case_id,
-        riskLevel="high",
-        riskScore=78,
-        riskFactors=[
-            RiskFactor(id="r1", factor="Delayed medical report", impact="high", description="Medical evidence is overdue."),
-            RiskFactor(id="r2", factor="Chain-of-custody gaps", impact="medium", description="Some custody transfers lack verification records."),
-        ],
-        summary="This case has elevated risk due to evidence delays and missing forensic documentation.",
-        generatedAt=datetime.utcnow().isoformat() + "Z",
-    )
+    copilot_result["formattedText"] = "\n".join(formatted_lines)
 
-
-def _mock_readiness(case_id: str) -> ReadinessReport:
-    return ReadinessReport(
-        caseId=case_id,
-        overallPercent=62,
-        completedCount=8,
-        totalCount=13,
-        items=[
-            ReadinessItem(id="rr1", label="FIR filed", done=True, priority="required", category="document"),
-            ReadinessItem(id="rr2", label="Medical report", done=False, priority="required", category="document"),
-            ReadinessItem(id="rr3", label="FSL report", done=False, priority="required", category="procedure"),
-            ReadinessItem(id="rr4", label="Witness statement", done=False, priority="high", category="procedure"),
-        ],
-        recommendations=["Complete forensic report", "Confirm evidence transfer receipts", "Schedule court readiness review"],
-        generatedAt=datetime.utcnow().isoformat() + "Z",
-    )
-
-
-def _mock_missing(case_id: str) -> List[MissingProcedure]:
-    return [
-        MissingProcedure(
-            id="mp1",
-            type="missing_document",
-            title="Medical report missing",
-            description="The medical examination report has not been attached to the case file.",
-            priority="critical",
-            suggestedAction="Obtain and upload the medical examination report immediately.",
-            daysOverdue=3,
-            caseId=case_id,
-        ),
-        MissingProcedure(
-            id="mp2",
-            type="workflow_step",
-            title="Witness interview pending",
-            description="Scheduled witness interview has not been completed.",
-            priority="high",
-            suggestedAction="Assign a field investigator to complete the witness interview.",
-            daysOverdue=2,
-            caseId=case_id,
-        ),
-    ]
-
-
-def _mock_recommendations(case_id: str) -> List[AIRecommendation]:
-    return [
-        AIRecommendation(
-            id="ar1",
-            title="Secure FSL report",
-            description="Ensure FSL evidence analysis report is shared with the prosecution team.",
-            priority="critical",
-            category="procedure",
-            suggestedAction="Expedite FSL analysis and attach the report to the case file.",
-            caseId=case_id,
-            deadline=(datetime.utcnow().isoformat() + "Z"),
-        ),
-        AIRecommendation(
-            id="ar2",
-            title="Verify witness availability",
-            description="Confirm witness availability for the next court hearing preparation.",
-            priority="high",
-            category="coordination",
-            suggestedAction="Contact the witness and schedule a short availability check-in.",
-            caseId=case_id,
-        ),
-    ]
+    return {
+        "success": True,
+        "message": "AI Copilot analysis generated",
+        "data": copilot_result,
+    }
 
 
 @router.get("/cases/{case_id}/summary", response_model=ApiResponse[AISummary], dependencies=[Depends(require_access_token)])
-async def get_summary(case_id: str) -> dict:
-    return {"success": True, "message": "AI summary retrieved", "data": _mock_summary(case_id)}
+async def get_summary(case_id: str, db: AsyncSession = Depends(get_db)) -> dict:
+    case, stages = await _get_case_and_stages(case_id, db)
+    engine = DPOGEngine(crime_type=case.crimeType or "POCSO")
+    dpog = engine.evaluate_graph(case_id=str(case.id), case_number=case.caseNumber, db_stages=stages)
+    readiness = dpog.get("readiness", {})
+    blockers = dpog.get("summary", {}).get("activeBlockers", [])
+    actionable = dpog.get("summary", {}).get("nextActionable", [])
+
+    pending_tasks = [a["title"] for a in actionable]
+    delay_reasons = [f"{b['title']} is blocked by {b.get('rootBlocker', 'prerequisite')}" for b in blockers]
+
+    summary_obj = AISummary(
+        caseId=str(case.id),
+        caseNumber=case.caseNumber,
+        summary=f"Case {case.caseNumber} is at stage {case.currentStageOrder}/{case.totalStages} ({case.currentStage}) with {readiness.get('score', 0)}% procedural readiness.",
+        currentStage=case.currentStage or "In Progress",
+        investigationStatus="delayed" if blockers else ("completed" if readiness.get("score") == 100 else "on_track"),
+        pendingTasks=pending_tasks if pending_tasks else ["Review case file"],
+        missingDocuments=[f"Prerequisite for {b['title']}" for b in blockers],
+        delayReasons=delay_reasons,
+        suggestedNextStep=f"Progress '{actionable[0]['title']}'" if actionable else "Finalize court documentation.",
+        generatedAt=datetime.now(timezone.utc).isoformat(),
+    )
+    return {"success": True, "message": "AI summary retrieved", "data": summary_obj}
 
 
 @router.get("/cases/{case_id}/risk", response_model=ApiResponse[RiskReport], dependencies=[Depends(require_access_token)])
-async def get_risk(case_id: str) -> dict:
-    return {"success": True, "message": "Risk report retrieved", "data": _mock_risk(case_id)}
+async def get_risk(case_id: str, db: AsyncSession = Depends(get_db)) -> dict:
+    case, stages = await _get_case_and_stages(case_id, db)
+    engine = DPOGEngine(crime_type=case.crimeType or "POCSO")
+    dpog = engine.evaluate_graph(case_id=str(case.id), case_number=case.caseNumber, db_stages=stages)
+    blockers = dpog.get("summary", {}).get("activeBlockers", [])
+    readiness = dpog.get("readiness", {})
+
+    risk_factors = []
+    for b in blockers:
+        risk_factors.append(RiskFactor(
+            id=f"rf_{b['stageId']}",
+            factor=f"Bottleneck at {b['title']}",
+            impact="high" if b.get("affectedDownstreamCount", 0) > 1 else "medium",
+            description=f"Blocked by {b.get('rootBlocker', 'pending lab/hospital obligations')}. Affects {b.get('affectedDownstreamCount', 0)} downstream steps."
+        ))
+
+    score = 30 + (len(blockers) * 20)
+    score = min(95, max(15, score))
+    level = "critical" if score >= 80 else ("high" if score >= 60 else ("medium" if score >= 40 else "low"))
+
+    report = RiskReport(
+        caseId=str(case.id),
+        riskLevel=level,
+        riskScore=score,
+        riskFactors=risk_factors,
+        summary=f"Procedural risk level is {level.upper()} due to {len(blockers)} active obligation bottlenecks.",
+        generatedAt=datetime.now(timezone.utc).isoformat(),
+    )
+    return {"success": True, "message": "Risk report retrieved", "data": report}
 
 
 @router.get("/cases/{case_id}/readiness", response_model=ApiResponse[ReadinessReport], dependencies=[Depends(require_access_token)])
-async def get_readiness(case_id: str) -> dict:
-    return {"success": True, "message": "Readiness report retrieved", "data": _mock_readiness(case_id)}
+async def get_readiness(case_id: str, db: AsyncSession = Depends(get_db)) -> dict:
+    case, stages = await _get_case_and_stages(case_id, db)
+    engine = DPOGEngine(crime_type=case.crimeType or "POCSO")
+    dpog = engine.evaluate_graph(case_id=str(case.id), case_number=case.caseNumber, db_stages=stages)
+    nodes = dpog.get("nodes", [])
+    readiness = dpog.get("readiness", {})
+
+    items = [
+        ReadinessItem(
+            id=n["stageId"],
+            label=n["title"],
+            done=n["isCompleted"],
+            priority="required" if n.get("isCriticalPath", True) else "recommended",
+            category="procedure" if "review" in n["title"].lower() else ("document" if "report" in n["title"].lower() or "fir" in n["title"].lower() else "evidence")
+        )
+        for n in nodes
+    ]
+
+    report = ReadinessReport(
+        caseId=str(case.id),
+        overallPercent=readiness.get("score", 0),
+        completedCount=readiness.get("completedStages", 0),
+        totalCount=readiness.get("totalStages", len(nodes)),
+        items=items,
+        recommendations=[f"Expedite {a['title']}" for a in dpog.get("summary", {}).get("nextActionable", [])],
+        generatedAt=datetime.now(timezone.utc).isoformat(),
+    )
+    return {"success": True, "message": "Readiness report retrieved", "data": report}
 
 
 @router.get("/cases/{case_id}/missing", response_model=ApiResponse[List[MissingProcedure]], dependencies=[Depends(require_access_token)])
-async def get_missing(case_id: str) -> dict:
-    return {"success": True, "message": "Missing procedures retrieved", "data": _mock_missing(case_id)}
+async def get_missing(case_id: str, db: AsyncSession = Depends(get_db)) -> dict:
+    case, stages = await _get_case_and_stages(case_id, db)
+    engine = DPOGEngine(crime_type=case.crimeType or "POCSO")
+    dpog = engine.evaluate_graph(case_id=str(case.id), case_number=case.caseNumber, db_stages=stages)
+    blockers = dpog.get("summary", {}).get("activeBlockers", [])
+
+    missing = []
+    for i, b in enumerate(blockers):
+        missing.append(MissingProcedure(
+            id=f"mp_{b['stageId']}",
+            type="missing_evidence" if "fsl" in b["title"].lower() or "forensic" in b["title"].lower() else "workflow_step",
+            title=f"{b['title']} Incomplete",
+            description=f"Prerequisite pending: {b.get('rootBlocker', 'External agency output missing')}",
+            priority="critical" if b.get("affectedDownstreamCount", 0) > 1 else "high",
+            suggestedAction=f"Coordinate with {b.get('department', 'external agency')} to resolve {b.get('rootBlocker')}.",
+            daysOverdue=2,
+            caseId=str(case.id),
+        ))
+    return {"success": True, "message": "Missing procedures retrieved", "data": missing}
 
 
 @router.get("/cases/{case_id}/recommendations", response_model=ApiResponse[List[AIRecommendation]], dependencies=[Depends(require_access_token)])
-async def get_recommendations(case_id: str) -> dict:
-    return {"success": True, "message": "Recommendations retrieved", "data": _mock_recommendations(case_id)}
+async def get_recommendations(case_id: str, db: AsyncSession = Depends(get_db)) -> dict:
+    case, stages = await _get_case_and_stages(case_id, db)
+    engine = DPOGEngine(crime_type=case.crimeType or "POCSO")
+    dpog = engine.evaluate_graph(case_id=str(case.id), case_number=case.caseNumber, db_stages=stages)
+    actionable = dpog.get("summary", {}).get("nextActionable", [])
 
-
-class ChatRequest(BaseModel):
-    message: str
-    caseId: Optional[str] = None
-
-
-@router.post("/chat", response_model=ApiResponse[str], dependencies=[Depends(require_access_token)])
-async def chat(payload: ChatRequest) -> dict:
-    prompt = payload.message.lower()
-    if "summary" in prompt:
-        response = "The case is currently delayed due to pending forensic evidence and requires coordinated action across police and hospital teams."
-    elif "risk" in prompt:
-        response = "Current risk is high because several deadlines have been missed and evidence integrity needs verification."
-    elif "readiness" in prompt:
-        response = "The case is 62% ready for court; final reports and witness statements remain outstanding."
-    elif "missing" in prompt:
-        response = "Key missing items include medical report, FSL chain-of-custody log, and witness interview notes."
-    else:
-        response = "I recommend reviewing forensic timelines, confirming evidence custody, and ensuring medical documentation is attached."
-    return {"success": True, "message": "AI response generated", "data": response}
+    recs = []
+    for i, a in enumerate(actionable):
+        recs.append(AIRecommendation(
+            id=f"ar_{a['stageId']}",
+            title=f"Execute {a['title']}",
+            description=f"All prerequisite obligations for '{a['title']}' are satisfied. Ready for operational execution.",
+            priority="critical" if i == 0 else "high",
+            category="procedure",
+            suggestedAction=f"Assigned officer should complete {a['title']} obligations.",
+            caseId=str(case.id),
+            deadline=a.get("deadline"),
+        ))
+    return {"success": True, "message": "Recommendations retrieved", "data": recs}

@@ -1,12 +1,24 @@
 export type MessageRole = "user" | "assistant" | "system";
 export type RiskLevel   = "low" | "medium" | "high" | "critical";
 
+export interface AIChatResponse {
+  summary: string;
+  observations: string[];
+  recommendations: string[];
+  basis: string[];
+  uncertainties: string[];
+  missingInformation: string[];
+  humanApprovalRequired: boolean;
+  formattedText?: string;
+}
+
 export interface ChatMessage {
-  id:        string;
-  role:      MessageRole;
-  content:   string;
-  timestamp: Date;
-  typing?:   boolean;
+  id:           string;
+  role:         MessageRole;
+  content:      string;
+  timestamp:    Date;
+  typing?:      boolean;
+  copilotData?: AIChatResponse;
 }
 
 export interface AISummary {

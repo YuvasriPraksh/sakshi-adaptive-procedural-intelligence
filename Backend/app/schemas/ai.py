@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AISummary(BaseModel):
@@ -85,5 +85,25 @@ class AIRecommendation(BaseModel):
     suggestedAction: str
     caseId: str
     deadline: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ── AI Copilot Schemas ────────────────────────────────────────────────────────
+class AIChatRequest(BaseModel):
+    message: str = Field(..., description="User prompt or question to the copilot")
+    caseId: Optional[str] = Field(None, description="Active case ID context")
+    intent: Optional[str] = Field(None, description="Optional predefined action intent")
+
+
+class AIChatResponse(BaseModel):
+    summary: str
+    observations: List[str] = Field(default_factory=list)
+    recommendations: List[str] = Field(default_factory=list)
+    basis: List[str] = Field(default_factory=list)
+    uncertainties: List[str] = Field(default_factory=list)
+    missingInformation: List[str] = Field(default_factory=list)
+    humanApprovalRequired: bool = True
+    formattedText: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
