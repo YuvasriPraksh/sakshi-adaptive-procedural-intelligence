@@ -7,23 +7,22 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 from app.core.logging import logger
 
 # ── Password Hashing ──────────────────────────────────────────────────────────
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+import bcrypt as _bcrypt
 
 
 def hash_password(plain_password: str) -> str:
-    """Hash a plain-text password using argon2."""
-    return pwd_context.hash(plain_password)
+    """Hash a plain-text password using bcrypt (directly, bypassing passlib 1.7.4/bcrypt-5.x compat issue)."""
+    return _bcrypt.hashpw(plain_password.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plain-text password against its argon2 hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify a plain-text password against its bcrypt hash."""
+    return _bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
 # ── JWT Tokens ────────────────────────────────────────────────────────────────

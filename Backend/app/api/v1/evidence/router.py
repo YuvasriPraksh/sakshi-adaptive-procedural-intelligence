@@ -65,6 +65,25 @@ def _build_evidence_filters(case_id: Optional[str], status: Optional[str], agenc
     return conditions
 
 
+@router.get("/stats", response_model=ApiResponse[Dict[str, Any]], dependencies=[Depends(require_access_token)])
+async def get_evidence_stats() -> dict:
+    """Returns a stub stats object. Will be replaced with DB aggregation in a future phase."""
+    return {
+        "success": True,
+        "message": "Evidence stats retrieved",
+        "data": {
+            "total": 0, "pendingVerification": 0, "verified": 0,
+            "sharedAcrossAgencies": 0, "inTransit": 0, "courtSubmitted": 0,
+            "integrityHealth": 100, "chainHealth": 100, "alertCount": 3,
+        },
+    }
+
+
+@router.get("/alerts", response_model=ApiResponse[List[Dict[str, Any]]], dependencies=[Depends(require_access_token)])
+async def get_alerts() -> dict:
+    return {"success": True, "message": "Evidence alerts retrieved", "data": EVIDENCE_ALERTS}
+
+
 @router.get("", response_model=PaginatedResponse[EvidenceItemOut], dependencies=[Depends(require_access_token)])
 async def list_evidence(
     caseId: Optional[str] = Query(None),
@@ -194,6 +213,4 @@ async def verify_evidence(evidence_id: UUID, db: AsyncSession = Depends(get_db))
     }
 
 
-@router.get("/alerts", response_model=ApiResponse[List[Dict[str, Any]]], dependencies=[Depends(require_access_token)])
-async def get_alerts() -> dict:
-    return {"success": True, "message": "Evidence alerts retrieved", "data": EVIDENCE_ALERTS}
+# /alerts and /stats routes have been moved above /{evidence_id} to prevent UUID collision.
