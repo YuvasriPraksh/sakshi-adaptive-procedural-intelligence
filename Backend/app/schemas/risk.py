@@ -17,7 +17,7 @@ class RiskFactor(BaseModel):
 
 
 class RiskAssessmentBase(BaseModel):
-    caseId: str
+    caseId: str | UUID
     riskLevel: str
     riskScore: int
     riskFactors: List[RiskFactor]

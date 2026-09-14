@@ -19,6 +19,7 @@ class RiskAssessment(Base):
     caseId: Mapped[uuid.UUID] = mapped_column("case_id", UUID(as_uuid=True), ForeignKey("cases.id"), nullable=False)
     riskLevel: Mapped[str] = mapped_column("risk_level", String(80), nullable=False)
     riskScore: Mapped[int] = mapped_column("risk_score", nullable=False)
+    engineVersion: Mapped[str] = mapped_column("engine_version", String(40), nullable=False, default="523439d")
     riskFactors: Mapped[dict] = mapped_column("risk_factors", JSON, nullable=False, default=list)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     generatedAt: Mapped[str] = mapped_column("generated_at", String(80), nullable=False)
