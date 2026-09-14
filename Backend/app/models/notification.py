@@ -1,6 +1,7 @@
+from typing import Optional
 import uuid
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, JSON, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -25,9 +26,13 @@ class Notification(Base):
     caseNumber: Mapped[str] = mapped_column("case_number", String(120), nullable=True)
     actionUrl: Mapped[str] = mapped_column("action_url", String(255), nullable=True)
 
+    category: Mapped[str] = mapped_column("category", String(50), nullable=False, server_default="general")
+    eventCode: Mapped[Optional[str]] = mapped_column("event_code", String(80), nullable=True)
+    detailsJson: Mapped[Optional[dict]] = mapped_column("details_json", JSON, nullable=True)
+
     createdAt: Mapped[datetime] = mapped_column("created_at", DateTime(timezone=True), server_default=func.now(), nullable=False)
     updatedAt: Mapped[datetime] = mapped_column("updated_at", DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
-    createdBy: Mapped[uuid.UUID] = mapped_column("created_by", UUID(as_uuid=True), nullable=True)
-    updatedBy: Mapped[uuid.UUID] = mapped_column("updated_by", UUID(as_uuid=True), nullable=True)
+    createdBy: Mapped[Optional[uuid.UUID]] = mapped_column("created_by", UUID(as_uuid=True), nullable=True)
+    updatedBy: Mapped[Optional[uuid.UUID]] = mapped_column("updated_by", UUID(as_uuid=True), nullable=True)
 
     case = relationship("Case", back_populates="notifications")

@@ -1,23 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell, CheckCheck, Trash2, Filter, ChevronDown,
   FolderOpen, AlertTriangle, Clock, BrainCircuit,
   GitBranch, FileText, ArrowUpCircle, Info,
-  ExternalLink,
+  ExternalLink, Shield, ShieldAlert,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/utils/format";
 import { APP_NOTIFICATIONS } from "@/data/ai.data";
+import { notificationService } from "@/services/notificationService";
 import type { AppNotification } from "@/types/ai.types";
 
 const TYPE_CONFIG = {
   case_assigned:     { icon: FolderOpen,     color: "text-royal-600",   bg: "bg-royal-50   dark:bg-royal-950/30",   label: "Case Assigned"     },
   workflow_updated:  { icon: GitBranch,      color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30", label: "Workflow Update"   },
   high_risk:         { icon: AlertTriangle,  color: "text-red-600",     bg: "bg-red-50     dark:bg-red-950/30",     label: "Risk Alert"        },
+  risk:              { icon: ShieldAlert,    color: "text-amber-600",   bg: "bg-amber-50   dark:bg-amber-950/30",   label: "Procedural Risk"   },
   deadline:          { icon: Clock,          color: "text-amber-600",   bg: "bg-amber-50   dark:bg-amber-950/30",   label: "Deadline"          },
   ai_recommendation: { icon: BrainCircuit,   color: "text-purple-600",  bg: "bg-purple-50  dark:bg-purple-950/30",  label: "AI Insight"        },
   document_uploaded: { icon: FileText,       color: "text-blue-600",    bg: "bg-blue-50    dark:bg-blue-950/30",    label: "Document"          },
@@ -34,9 +36,9 @@ const PRIORITY_BADGE = {
 
 const FILTER_TYPES = [
   { value: "",                label: "All Types"       },
-  { value: "high_risk",       label: "Risk Alerts"     },
+  { value: "early_warning",   label: "Early Warnings"  },
+  { value: "risk",            label: "Risk Alerts"     },
   { value: "deadline",        label: "Deadlines"       },
-  { value: "case_assigned",   label: "Case Assigned"   },
   { value: "workflow_updated",label: "Workflow"        },
   { value: "ai_recommendation",label:"AI Insights"     },
   { value: "escalation",      label: "Escalations"     },
@@ -49,10 +51,28 @@ export default function NotificationsPage() {
   const [filterRead, setFilterRead] = useState<"all"|"unread"|"read">("all");
   const [filterType, setFilterType] = useState("");
 
+  const loadNotifications = useCallback(async () => {
+    try {
+      const res = await notificationService.list();
+      if (res.data && res.data.length > 0) {
+        setNotifs(res.data);
+      }
+    } catch (e) {
+      // Fallback to initial seed data if API offline
+    }
+  }, []);
+
+  useEffect(() => {
+    loadNotifications();
+  }, [loadNotifications]);
+
   const filtered = notifs.filter(n => {
     if (filterRead === "unread" && n.read)        return false;
     if (filterRead === "read"   && !n.read)       return false;
-    if (filterType && n.type !== filterType)      return false;
+    if (filterType === "early_warning") {
+      return n.category === "early_warning" || (n.eventCode && n.eventCode.startsWith("EARLY_WARN"));
+    }
+    if (filterType && n.type !== filterType && n.category !== filterType) return false;
     return true;
   });
 

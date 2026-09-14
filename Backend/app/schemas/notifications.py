@@ -17,5 +17,8 @@ class NotificationOut(BaseModel):
     caseNumber: Optional[str] = None
     createdAt: str
     actionUrl: Optional[str] = None
+    category: Optional[str] = "general"
+    eventCode: Optional[str] = None
+    detailsJson: Optional[dict] = None
 
     model_config = ConfigDict(from_attributes=True)

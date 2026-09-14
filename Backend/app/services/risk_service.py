@@ -4,6 +4,7 @@ from typing import Dict, Any, Optional
 
 from app.services.risk_engine_service import RiskEngineService
 from app.services.audit_chain_service import create_audit_event
+from app.services.early_warning_service import EarlyWarningService
 from app.models.risk_assessment import RiskAssessment
 from app.models.notification import Notification
 from app.core.database import async_session
@@ -108,6 +109,7 @@ class RiskService:
         if not recent.scalars().first():
             notif = Notification(
                 type="risk",
+                category="risk",
                 title=f"Risk assessment {result['riskLevel']}",
                 message=result["summary"],
                 priority="high" if result["riskLevel"] in ("HIGH", "CRITICAL") else "medium",
@@ -117,6 +119,12 @@ class RiskService:
                 createdBy=performed_by,
             )
             db.add(notif)
+
+        # Phase 7D Procedural Early Warning Engine Evaluation
+        early_warning_svc = EarlyWarningService(now=self.now)
+        await early_warning_svc.evaluate_and_emit(
+            db, case_id, prev_risk, risk_item, result, performed_by
+        )
 
     async def compute_and_persist(
         self, case_id: uuid.UUID, performed_by: Optional[uuid.UUID] = None

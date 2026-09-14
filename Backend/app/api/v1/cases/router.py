@@ -192,6 +192,11 @@ async def transition_workflow_stage(
     engine = DPOGEngine(crime_type=case.crimeType or "POCSO")
     updated_graph = engine.evaluate_graph(case_id=str(case.id), case_number=case.caseNumber, db_stages=updated_stages)
 
+    # Event-triggered procedural risk recomputation & early-warning evaluation (Phase 7D)
+    from app.services.risk_service import RiskService
+    risk_svc = RiskService()
+    await risk_svc.compute_and_persist_with_db(case.id, db, performed_by=user.id if user else None)
+
     return {
         "success": True,
         "message": f"Stage {target_stage.title} transitioned to {target_stage.status} successfully",

@@ -92,13 +92,16 @@ export interface AIRecommendation {
 
 export interface AppNotification {
   id:        string;
-  type:      "case_assigned" | "workflow_updated" | "high_risk" | "deadline" | "ai_recommendation" | "document_uploaded" | "escalation" | "general";
+  type:      "case_assigned" | "workflow_updated" | "high_risk" | "deadline" | "ai_recommendation" | "document_uploaded" | "escalation" | "general" | "risk";
   title:     string;
   message:   string;
   priority:  "critical" | "high" | "medium" | "low";
   read:      boolean;
   caseId?:   string;
   caseNumber?: string;
-  createdAt: Date;
+  createdAt: Date | string;
   actionUrl?: string;
+  category?: string;
+  eventCode?: string;
+  detailsJson?: Record<string, any>;
 }

@@ -6,9 +6,24 @@ import apiClient from "./api/client";
 import type { ApiResponse, PaginatedResponse } from "@/types/common.types";
 import type { AppNotification } from "@/types/ai.types";
 
+export interface ListNotificationParams {
+  page?: number;
+  pageSize?: number;
+  category?: string;
+  caseId?: string;
+  unreadOnly?: boolean;
+}
+
 export const notificationService = {
-  async list(): Promise<PaginatedResponse<AppNotification>> {
-    const res = await apiClient.get<PaginatedResponse<AppNotification>>("/notifications");
+  async list(params?: ListNotificationParams): Promise<PaginatedResponse<AppNotification>> {
+    const res = await apiClient.get<PaginatedResponse<AppNotification>>("/notifications", {
+      params,
+    });
+    return res.data;
+  },
+
+  async getCaseEarlyWarnings(caseId: string): Promise<ApiResponse<AppNotification[]>> {
+    const res = await apiClient.get<ApiResponse<AppNotification[]>>(`/notifications/case/${caseId}/early-warnings`);
     return res.data;
   },
 

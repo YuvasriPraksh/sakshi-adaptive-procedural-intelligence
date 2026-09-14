@@ -22,6 +22,7 @@ import { WorkflowGraphTab } from "./components/WorkflowGraphTab";
 import { OfficerAssignPanel } from "./components/OfficerAssignPanel";
 import { LiveRiskDashboard } from "./components/LiveRiskDashboard";
 import { RiskHistoryChart } from "./components/RiskHistoryChart";
+import { EarlyWarningBanner } from "./components/EarlyWarningBanner";
 import type { InvestigationCase } from "@/types/case.types";
 
 const TABS = ["Overview","Workflow","Graph","Documents","History","Procedural Risk"] as const;
@@ -60,6 +61,12 @@ export default function CaseDetailPage() {
           <ChevronRight className="h-3 w-3" />
           <span className="font-mono font-semibold text-foreground">{caseData.caseNumber}</span>
         </div>
+
+        {/* Phase 7D Early Warning Intelligence Banner */}
+        <EarlyWarningBanner
+          caseId={caseData.id}
+          onNavigateTab={(tab) => setActiveTab(tab === "risk" ? "Procedural Risk" : "Workflow")}
+        />
 
         {/* Header card */}
         <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} className="rounded-xl border border-border bg-card p-5 sm:p-6">
