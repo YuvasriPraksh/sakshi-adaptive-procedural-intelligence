@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft, Edit, Share2, MoreHorizontal,
   MapPin, Calendar, User, FileText, AlertTriangle,
-  CheckCircle2, Clock, ChevronRight, BrainCircuit,
+  CheckCircle2, Clock, ChevronRight, Shield,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
@@ -20,9 +20,11 @@ import { WorkflowTab } from "./components/WorkflowTab";
 import { DocumentsTab } from "./components/DocumentsTab";
 import { WorkflowGraphTab } from "./components/WorkflowGraphTab";
 import { OfficerAssignPanel } from "./components/OfficerAssignPanel";
+import { LiveRiskDashboard } from "./components/LiveRiskDashboard";
+import { RiskHistoryChart } from "./components/RiskHistoryChart";
 import type { InvestigationCase } from "@/types/case.types";
 
-const TABS = ["Overview","Workflow","Graph","Documents","History","AI Insights"] as const;
+const TABS = ["Overview","Workflow","Graph","Documents","History","Procedural Risk"] as const;
 type Tab = typeof TABS[number];
 
 export default function CaseDetailPage() {
@@ -107,7 +109,7 @@ export default function CaseDetailPage() {
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={cn("flex items-center gap-1.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px",
                 activeTab === tab ? "border-[hsl(var(--primary))] text-[hsl(var(--primary))]" : "border-transparent text-muted-foreground hover:text-foreground")}>
-              {tab === "AI Insights" && <BrainCircuit className="h-3.5 w-3.5" />}
+              {tab === "Procedural Risk" && <Shield className="h-3.5 w-3.5" />}
               {tab}
             </button>
           ))}
@@ -120,7 +122,12 @@ export default function CaseDetailPage() {
           {activeTab === "Graph"       && <WorkflowGraphTab caseData={caseData} />}
           {activeTab === "Documents"   && <DocumentsTab documents={caseData.documents} />}
           {activeTab === "History"     && <HistoryTab caseData={caseData} />}
-          {activeTab === "AI Insights" && <AIInsightsTab />}
+          {activeTab === "Procedural Risk" && (
+            <div className="space-y-6">
+              <LiveRiskDashboard caseId={caseData.id} assignedOfficerId={caseData.assignedOfficerId} />
+              <RiskHistoryChart caseId={caseData.id} />
+            </div>
+          )}
         </motion.div>
       </div>
 
@@ -261,30 +268,6 @@ function HistoryTab({ caseData }: { caseData: InvestigationCase }) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-// ─── AI Insights Tab ──────────────────────────────────────────────────────────
-function AIInsightsTab() {
-  return (
-    <div className="rounded-xl border border-border bg-card p-8 text-center space-y-4">
-      <div className="flex justify-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">
-          <BrainCircuit className="h-8 w-8" strokeWidth={1.5} />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <p className="text-base font-semibold text-foreground">AI Insights Engine</p>
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          AI-powered procedural recommendations, risk assessment, and investigative insights will be available here once the AI backend is connected.
-        </p>
-      </div>
-      <div className="flex flex-wrap justify-center gap-3 pt-2">
-        {["Risk Assessment","Procedural Gaps","Evidence Analysis","Timeline Prediction"].map(f => (
-          <span key={f} className="rounded-full border border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 px-3 py-1 text-xs text-[hsl(var(--primary))]">{f}</span>
-        ))}
-      </div>
     </div>
   );
 }
