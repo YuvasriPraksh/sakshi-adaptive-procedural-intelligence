@@ -9,11 +9,13 @@ import { cn } from "@/lib/utils";
 
 export default function CWCDashboardPage() {
   const navigate = useNavigate();
+  const cwcCases = CASES.filter(c => c.status === "in_progress" || c.status === "escalated");
+  const pendingWelfareActions = cwcCases.filter(c => c.currentStage.includes("Statement") || c.currentStage.includes("Medical")).length;
   const stats = [
-    { label:"Children in Care",    value:14, icon:Heart,        color:"text-pink-600",   bg:"bg-pink-50   dark:bg-pink-950/40"  },
-    { label:"Pending Counselling", value:6,  icon:ClipboardList,color:"text-amber-600",  bg:"bg-amber-50  dark:bg-amber-950/40" },
-    { label:"Sessions Completed",  value:28, icon:CheckCircle2, color:"text-emerald-600",bg:"bg-emerald-50 dark:bg-emerald-950/40"},
-    { label:"Cases Assigned",      value:9,  icon:Users,        color:"text-royal-600",  bg:"bg-royal-50  dark:bg-royal-950/40" },
+    { label:"Cases Requiring Attention", value:cwcCases.length, icon:Users, color:"text-royal-600", bg:"bg-royal-50 dark:bg-royal-950/40" },
+    { label:"Pending Welfare Actions", value:pendingWelfareActions, icon:ClipboardList, color:"text-amber-600", bg:"bg-amber-50 dark:bg-amber-950/40" },
+    { label:"Cases With Medical Stage", value:CASES.filter(c => c.currentStage.includes("Medical")).length, icon:Heart, color:"text-pink-600", bg:"bg-pink-50 dark:bg-pink-950/40" },
+    { label:"Escalated Cases", value:CASES.filter(c => c.status === "escalated").length, icon:CheckCircle2, color:"text-red-600", bg:"bg-red-50 dark:bg-red-950/40" },
   ];
   return (
     <DashboardLayout>
@@ -49,14 +51,14 @@ export default function CWCDashboardPage() {
             <button onClick={() => navigate(ROUTES.CASES)} className="text-xs text-[hsl(var(--primary))] hover:underline flex items-center gap-1">All cases <ArrowRight className="h-3 w-3" /></button>
           </div>
           <div className="space-y-2">
-            {CASES.filter(c => c.status === "in_progress" || c.status === "escalated").slice(0,5).map(c => (
-              <div key={c.id} className="flex items-center gap-3 rounded-lg border border-border px-4 py-3 hover:bg-muted/40 transition-colors">
+            {cwcCases.slice(0,5).map(c => (
+              <button key={c.id} onClick={() => navigate(`/cases/${c.id}`)} className="flex w-full items-center gap-3 rounded-lg border border-border px-4 py-3 text-left hover:bg-muted/40 transition-colors">
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-mono font-semibold text-[hsl(var(--primary))]">{c.caseNumber.split("/").pop()}</p>
-                  <p className="text-xs text-muted-foreground">{c.district} · Victim age {c.victimAge}</p>
+                  <p className="text-xs text-muted-foreground">{c.district} · {c.currentStage}</p>
                 </div>
                 <StatusBadge variant={c.status === "escalated" ? "danger" : "warning"} size="xs" dot>{c.status.replace("_"," ")}</StatusBadge>
-              </div>
+              </button>
             ))}
           </div>
         </div>

@@ -12,11 +12,13 @@ const escalated = CASES.filter(c => c.status === "escalated" || c.priority === "
 
 export default function SupervisorDashboardPage() {
   const navigate = useNavigate();
+  const activeCases = CASES.filter(c => !["completed", "closed"].includes(c.status));
+  const pendingStages = activeCases.reduce((total, c) => total + c.workflow.filter(stage => stage.status !== "completed").length, 0);
   const stats = [
-    { label:"Total Active Cases",  value:53,  icon:FolderOpen,   color:"text-royal-600",   bg:"bg-royal-50   dark:bg-royal-950/40"  },
-    { label:"Escalated",           value:8,   icon:AlertTriangle,color:"text-red-600",     bg:"bg-red-50     dark:bg-red-950/40"    },
-    { label:"SLA Compliant",       value:"78%",icon:CheckCircle2,color:"text-emerald-600", bg:"bg-emerald-50 dark:bg-emerald-950/40"},
-    { label:"Awaiting Review",     value:12,  icon:BarChart3,    color:"text-amber-600",   bg:"bg-amber-50   dark:bg-amber-950/40"  },
+    { label:"Active Cases", value:activeCases.length, icon:FolderOpen, color:"text-royal-600", bg:"bg-royal-50 dark:bg-royal-950/40" },
+    { label:"Escalated / Critical", value:escalated.length, icon:AlertTriangle, color:"text-red-600", bg:"bg-red-50 dark:bg-red-950/40" },
+    { label:"Pending Obligations", value:pendingStages, icon:BarChart3, color:"text-amber-600", bg:"bg-amber-50 dark:bg-amber-950/40" },
+    { label:"Completed Cases", value:CASES.filter(c => c.status === "completed").length, icon:CheckCircle2, color:"text-emerald-600", bg:"bg-emerald-50 dark:bg-emerald-950/40" },
   ];
   return (
     <DashboardLayout>
@@ -66,23 +68,21 @@ export default function SupervisorDashboardPage() {
             </div>
           </div>
           <div className="rounded-xl border border-border bg-card p-5">
-            <p className="text-sm font-semibold text-foreground mb-4">SLA Compliance by Stage</p>
+            <p className="text-sm font-semibold text-foreground mb-4">Operational Workload by Stage</p>
             <div className="space-y-3">
-              {[
-                { stage:"FIR Registration",    pct:91 },
-                { stage:"Victim Statement",    pct:78 },
-                { stage:"Medical Examination", pct:62 },
-                { stage:"FSL Submission",      pct:83 },
-                { stage:"Charge Sheet",        pct:94 },
-              ].map(s => (
-                <div key={s.stage} className="space-y-1">
+              {["FIR Registered", "Victim Statement", "Medical Examination", "FSL Examination", "Charge Sheet"].map(stage => {
+                const count = activeCases.filter(c => c.currentStage === stage).length;
+                const pct = activeCases.length ? Math.round((count / activeCases.length) * 100) : 0;
+                return (
+                <div key={stage} className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">{s.stage}</span>
-                    <span className={cn("font-semibold", s.pct >= 80 ? "text-emerald-600" : s.pct >= 60 ? "text-amber-600" : "text-red-500")}>{s.pct}%</span>
+                    <span className="text-muted-foreground">{stage}</span>
+                    <span className="font-semibold text-foreground">{count}</span>
                   </div>
-                  <ProgressBar value={s.pct} color={s.pct >= 80 ? "success" : s.pct >= 60 ? "warning" : "danger"} size="xs" />
+                  <ProgressBar value={pct} color="primary" size="xs" />
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

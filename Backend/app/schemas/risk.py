@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict
 class RiskFactor(BaseModel):
     id: str
     factor: str
-    impact: str
+    impact: str | int | float
     description: str
 
     model_config = ConfigDict(from_attributes=True)

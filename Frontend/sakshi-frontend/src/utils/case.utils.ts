@@ -40,6 +40,7 @@ export const CRIME_LABEL: Record<CrimeType, string> = {
   trafficking:    "Trafficking",
   exploitation:   "Exploitation",
   cybercrime:     "Cybercrime",
+  pocso:          "POCSO",
   other:          "Other",
 };
 

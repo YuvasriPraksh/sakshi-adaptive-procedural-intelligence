@@ -35,7 +35,7 @@ async def generate_passport(
         passport = await passport_service.generate_passport(
             db=db,
             case_id=caseId,
-            generated_by=f"{current_user.firstName} {current_user.lastName}".strip(),
+            generated_by=current_user.name,
             generated_by_id=current_user.id,
         )
         return passport

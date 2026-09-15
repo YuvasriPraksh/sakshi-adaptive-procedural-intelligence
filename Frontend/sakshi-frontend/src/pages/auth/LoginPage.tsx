@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
@@ -11,8 +11,10 @@ import { useAuth } from "@/context/AuthContext";
 import { authService } from "@/services/authService";
 
 const schema = z.object({
+  name:       z.string().optional(),
   email:      z.string().min(1, "Email is required").email("Invalid email address"),
   password:   z.string().min(1, "Password is required"),
+  confirmPassword: z.string().optional(),
   rememberMe: z.boolean().optional(),
 });
 type FormData = z.infer<typeof schema>;
@@ -26,12 +28,22 @@ const DEMO_ACCOUNTS = [
   { role: "Supervisor", email: "supervisor@sakshi.gov.in", password: "SAKSHI@Demo2026", color: "bg-amber-100 text-amber-700 border-amber-200" },
 ];
 
+const DASHBOARD_BY_ROLE: Record<string, string> = {
+  police: ROUTES.POLICE_DASHBOARD,
+  hospital: ROUTES.HOSPITAL_DASHBOARD,
+  fsl: ROUTES.FSL_DASHBOARD,
+  cwc: ROUTES.CWC_DASHBOARD,
+  supervisor: ROUTES.SUPERVISOR_DASHBOARD,
+  admin: ROUTES.SUPERVISOR_DASHBOARD,
+};
+
 export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [success, setSuccess] = useState(false);
   const { login } = useAuth();
   const navigate   = useNavigate();
+  const isRegister  = useLocation().pathname === ROUTES.REGISTER;
 
   const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -41,20 +53,31 @@ export default function LoginPage() {
     setLoginError("");
 
     try {
-      const response = await authService.login({ email: data.email, password: data.password });
+      if (isRegister && (!data.name || data.name.trim().length < 2)) {
+        setLoginError("Name must be at least 2 characters.");
+        return;
+      }
+      if (isRegister && data.password !== data.confirmPassword) {
+        setLoginError("Passwords do not match.");
+        return;
+      }
+
+      const response = isRegister
+        ? await authService.register({ name: data.name!.trim(), email: data.email, password: data.password })
+        : await authService.login({ email: data.email, password: data.password });
       if (!response.success || !response.data) {
-        setLoginError(response.message || "Unable to sign in right now.");
+        setLoginError(response.message || (isRegister ? "Unable to register right now." : "Unable to sign in right now."));
         return;
       }
 
       const { user, tokens } = response.data;
       login(user, tokens.accessToken);
       setSuccess(true);
-      window.setTimeout(() => navigate(ROUTES.DASHBOARD), 800);
+      window.setTimeout(() => navigate(DASHBOARD_BY_ROLE[user.role] ?? ROUTES.DASHBOARD), 800);
     } catch (error: unknown) {
       const message = error && typeof error === "object" && "message" in error && typeof (error as { message?: unknown }).message === "string"
         ? (error as { message: string }).message
-        : "Unable to sign in right now.";
+        : (isRegister ? "Unable to register right now." : "Unable to sign in right now.");
       setLoginError(message);
     }
   };
@@ -78,7 +101,7 @@ export default function LoginPage() {
             {[
               "End-to-end encrypted sessions",
               "Role-based access control",
-              "Tamper-proof audit logging",
+              "Traceable audit logging",
               "POCSO Act 2012 compliant",
             ].map(item => (
               <div key={item} className="flex items-center gap-2.5">
@@ -101,12 +124,11 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Welcome back</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Sign in to access your dashboard</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{isRegister ? "Create an account" : "Welcome back"}</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{isRegister ? "Register for the SAKSHI prototype" : "Sign in to access your dashboard"}</p>
           </div>
 
-          {/* Demo accounts */}
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4 space-y-2">
+          {!isRegister && <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4 space-y-2">
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Demo Accounts (click to fill)</p>
             <div className="flex flex-wrap gap-2">
               {DEMO_ACCOUNTS.map(a => (
@@ -116,7 +138,7 @@ export default function LoginPage() {
                 </button>
               ))}
             </div>
-          </div>
+          </div>}
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -129,9 +151,14 @@ export default function LoginPage() {
             {success && (
               <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 p-3">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <p className="text-sm text-emerald-600 dark:text-emerald-400">Login successful! Redirecting…</p>
+                <p className="text-sm text-emerald-600 dark:text-emerald-400">{isRegister ? "Registration successful! Redirecting…" : "Login successful! Redirecting…"}</p>
               </div>
             )}
+
+            {isRegister && <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
+              <input {...register("name")} type="text" autoComplete="name" className="w-full h-10 rounded-lg border px-4 text-sm bg-white dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700" />
+            </div>}
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
@@ -147,7 +174,7 @@ export default function LoginPage() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
-                <Link to={ROUTES.FORGOT_PASSWORD} className="text-xs text-royal-600 hover:underline">Forgot password?</Link>
+                {!isRegister && <Link to={ROUTES.FORGOT_PASSWORD} className="text-xs text-royal-600 hover:underline">Forgot password?</Link>}
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -161,6 +188,11 @@ export default function LoginPage() {
               {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
             </div>
 
+            {isRegister && <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm Password</label>
+              <input {...register("confirmPassword")} type="password" autoComplete="new-password" className="w-full h-10 rounded-lg border px-4 text-sm bg-white dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700" />
+            </div>}
+
             <div className="flex items-center gap-2">
               <input {...register("rememberMe")} id="remember" type="checkbox" className="h-4 w-4 rounded border-slate-300 accent-royal-600" />
               <label htmlFor="remember" className="text-sm text-slate-600 dark:text-slate-400 select-none">Remember me for 30 days</label>
@@ -173,10 +205,14 @@ export default function LoginPage() {
               ) : success ? (
                 <><CheckCircle2 className="h-4 w-4" /> Redirecting…</>
               ) : (
-                <><Shield className="h-4 w-4" /> Sign In Securely</>
+                <><Shield className="h-4 w-4" /> {isRegister ? "Create Account" : "Sign In Securely"}</>
               )}
             </button>
           </form>
+
+          <p className="text-center text-sm text-slate-500">
+            {isRegister ? <>Already registered? <Link to={ROUTES.LOGIN} className="text-royal-600 hover:underline">Sign in</Link></> : <>Need an account? <Link to={ROUTES.REGISTER} className="text-royal-600 hover:underline">Register</Link></>}
+          </p>
 
           <p className="text-center text-xs text-slate-400">
             By signing in you agree to SAKSHI's security policy.<br />

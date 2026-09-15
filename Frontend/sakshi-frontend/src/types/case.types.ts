@@ -1,6 +1,6 @@
 export type CaseStatus = "registered" | "in_progress" | "under_review" | "completed" | "escalated" | "closed" | "pending";
 export type CasePriority = "critical" | "high" | "medium" | "low";
-export type CrimeType = "sexual_assault" | "child_abuse" | "trafficking" | "exploitation" | "cybercrime" | "other";
+export type CrimeType = "sexual_assault" | "child_abuse" | "trafficking" | "exploitation" | "cybercrime" | "pocso" | "other";
 export type WorkflowStageStatus = "completed" | "in_progress" | "pending" | "skipped";
 
 export interface Officer {

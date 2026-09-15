@@ -5,7 +5,7 @@ import {
   Bell, CheckCheck, Trash2, Filter, ChevronDown,
   FolderOpen, AlertTriangle, Clock, BrainCircuit,
   GitBranch, FileText, ArrowUpCircle, Info,
-  ExternalLink, Shield, ShieldAlert,
+  ExternalLink, ShieldAlert,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
@@ -35,14 +35,11 @@ const PRIORITY_BADGE = {
 };
 
 const FILTER_TYPES = [
-  { value: "",                label: "All Types"       },
+  { value: "",                label: "All"             },
   { value: "early_warning",   label: "Early Warnings"  },
-  { value: "risk",            label: "Risk Alerts"     },
-  { value: "deadline",        label: "Deadlines"       },
+  { value: "risk",            label: "Risk"            },
   { value: "workflow_updated",label: "Workflow"        },
-  { value: "ai_recommendation",label:"AI Insights"     },
-  { value: "escalation",      label: "Escalations"     },
-  { value: "document_uploaded",label:"Documents"       },
+  { value: "system",          label: "System"          },
 ];
 
 export default function NotificationsPage() {
@@ -71,6 +68,9 @@ export default function NotificationsPage() {
     if (filterRead === "read"   && !n.read)       return false;
     if (filterType === "early_warning") {
       return n.category === "early_warning" || (n.eventCode && n.eventCode.startsWith("EARLY_WARN"));
+    }
+    if (filterType === "system") {
+      return n.type === "general" || n.category === "system";
     }
     if (filterType && n.type !== filterType && n.category !== filterType) return false;
     return true;
@@ -181,7 +181,7 @@ function NotificationItem({
   onDelete:    (id: string) => void;
   onAction:    (url: string) => void;
 }) {
-  const config = TYPE_CONFIG[notif.type];
+  const config = TYPE_CONFIG[notif.type as keyof typeof TYPE_CONFIG] ?? TYPE_CONFIG.general;
   const IconComp = config.icon;
 
   return (

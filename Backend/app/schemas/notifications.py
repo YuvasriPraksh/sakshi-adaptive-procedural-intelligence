@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -13,9 +14,9 @@ class NotificationOut(BaseModel):
     message: str
     priority: str
     read: bool
-    caseId: Optional[str] = None
+    caseId: Optional[UUID] = None
     caseNumber: Optional[str] = None
-    createdAt: str
+    createdAt: datetime
     actionUrl: Optional[str] = None
     category: Optional[str] = "general"
     eventCode: Optional[str] = None

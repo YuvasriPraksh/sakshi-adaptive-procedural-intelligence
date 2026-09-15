@@ -24,7 +24,7 @@ class WorkflowStageCreate(BaseModel):
 
 class WorkflowStageOut(WorkflowStageCreate):
     id: UUID
-    caseId: str
+    caseId: UUID
     createdAt: datetime
     updatedAt: datetime
 

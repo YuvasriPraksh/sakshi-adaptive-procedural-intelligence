@@ -39,7 +39,7 @@ export function AuthLayout({ children, className }: AuthLayoutProps) {
             medical professionals, and child welfare committees.
           </p>
           <div className="flex items-center gap-3 pt-2">
-            {["MHA Compliant", "POCSO Act 2012", "End-to-End Encrypted"].map(tag => (
+            {["Research Prototype", "POCSO Workflow", "Privacy-Preserving Design"].map(tag => (
               <span key={tag} className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-white/80">
                 {tag}
               </span>

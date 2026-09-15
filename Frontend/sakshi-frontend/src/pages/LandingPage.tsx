@@ -8,13 +8,6 @@ import {
 import { ROUTES } from "@/router/routes";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
-const stats = [
-  { value: "2,400+",  label: "Cases Managed"      },
-  { value: "12",      label: "States Active"       },
-  { value: "98.2%",   label: "SLA Compliance"      },
-  { value: "4 mins",  label: "Avg Response Time"   },
-];
-
 const features = [
   {
     icon: Brain,
@@ -26,7 +19,7 @@ const features = [
     icon: GitBranch,
     color: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600",
     title: "Dynamic Case Timeline",
-    desc: "Real-time chronological tracking of every investigation step with tamper-proof audit trails and automatic deadline alerts.",
+    desc: "Real-time chronological tracking of every investigation step with traceable audit history and automatic deadline alerts.",
   },
   {
     icon: Shield,
@@ -69,9 +62,9 @@ const techStack = [
 ];
 
 const testimonials = [
-  { name: "SP Rahul Sharma",    role: "Superintendent of Police, Delhi",         text: "SAKSHI has reduced our POCSO investigation processing time by 60% while ensuring 100% procedural compliance." },
-  { name: "Dr. Priya Mehta",    role: "Medical Officer, AIIMS",                  text: "The medical examination workflow is now streamlined. We no longer miss critical documentation steps." },
-  { name: "Adv. Sunita Rao",   role: "Child Welfare Committee, Karnataka",      text: "Finally a platform that truly understands child protection procedures and keeps every agency aligned." },
+  { name: "Synthetic police workflow", role: "Research prototype scenario", text: "A focused workspace for tracking procedural steps, assigned cases, and outstanding actions." },
+  { name: "Synthetic medical workflow", role: "Research prototype scenario", text: "Shared case context helps participating agencies keep documentation and handoffs visible." },
+  { name: "Synthetic oversight workflow", role: "Research prototype scenario", text: "Structured timelines and audit events make procedural accountability easier to review." },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -131,7 +124,7 @@ export default function LandingPage() {
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                National POCSO Investigation Platform · MHA Certified
+                Research Prototype · Synthetic Demonstration Environment
               </div>
               <div className="space-y-4">
                 <h1 className="text-5xl sm:text-6xl font-extrabold text-white leading-[1.08] tracking-tight">
@@ -155,7 +148,7 @@ export default function LandingPage() {
                 </a>
               </div>
               <div className="flex flex-wrap items-center gap-5 pt-2">
-                {["POCSO Act 2012", "MHA Compliant", "End-to-End Encrypted", "ISO 27001"].map(tag => (
+                {["Procedural Accountability", "Privacy-Preserving Design", "Synthetic Data", "Role-Aware Workflows"].map(tag => (
                   <div key={tag} className="flex items-center gap-1.5 text-xs text-white/50">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> {tag}
                   </div>
@@ -163,17 +156,15 @@ export default function LandingPage() {
               </div>
             </motion.div>
 
-            {/* Right — Stats card */}
+            {/* Right — Prototype scope */}
             <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
               <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 space-y-6">
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/40">Live Platform Statistics</p>
-                <div className="grid grid-cols-2 gap-6">
-                  {stats.map(s => (
-                    <div key={s.label} className="space-y-1">
-                      <p className="text-3xl font-extrabold text-white">{s.value}</p>
-                      <p className="text-xs text-white/50">{s.label}</p>
-                    </div>
-                  ))}
+                <p className="text-xs font-semibold uppercase tracking-widest text-white/40">Prototype Scope</p>
+                <div className="space-y-3 text-sm text-white/70">
+                  <p>Procedural case tracking</p>
+                  <p>Multi-agency workflow visibility</p>
+                  <p>Audit-ready activity history</p>
+                  <p>Role-aware showcase navigation</p>
                 </div>
                 <div className="border-t border-white/10 pt-5 space-y-3">
                   {stakeholders.map(s => (
@@ -233,10 +224,10 @@ export default function LandingPage() {
               </p>
               <div className="space-y-4">
                 {[
-                  "Reduces investigation time by up to 60%",
-                  "Zero missed procedural steps with AI guidance",
-                  "Secure multi-agency collaboration in real-time",
-                  "Automated compliance reports for judiciary",
+                  "Supports structured procedural review",
+                  "Surfaces pending steps and dependencies",
+                  "Enables multi-agency workflow visibility",
+                  "Keeps an audit-ready activity history",
                 ].map(point => (
                   <div key={point} className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
@@ -348,7 +339,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-10 border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-white/30">© {new Date().getFullYear()} SAKSHI. Ministry of Women & Child Development · Government of India</p>
-            <p className="text-xs text-white/30">POCSO Act 2012 · MHA Certified · ISO 27001</p>
+            <p className="text-xs text-white/30">Research prototype · Synthetic demonstration environment</p>
           </div>
         </div>
       </footer>

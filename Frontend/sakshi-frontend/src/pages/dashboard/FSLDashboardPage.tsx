@@ -9,11 +9,13 @@ import { cn } from "@/lib/utils";
 
 export default function FSLDashboardPage() {
   const navigate = useNavigate();
+  const fslCases = CASES.filter(c => c.currentStageOrder >= 5 && c.currentStageOrder <= 7);
+  const fslReports = CASES.flatMap(c => c.documents).filter(d => d.type === "fsl_report").length;
   const stats = [
-    { label:"Pending Analysis",  value:7,   icon:Clock,        color:"text-amber-600",   bg:"bg-amber-50   dark:bg-amber-950/40"  },
-    { label:"Reports Submitted", value:22,  icon:CheckCircle2, color:"text-emerald-600", bg:"bg-emerald-50 dark:bg-emerald-950/40"},
-    { label:"Avg Turnaround",    value:"4d",icon:TestTube2,    color:"text-purple-600",  bg:"bg-purple-50  dark:bg-purple-950/40" },
-    { label:"Critical Pending",  value:2,   icon:FlaskConical, color:"text-red-600",     bg:"bg-red-50     dark:bg-red-950/40"    },
+    { label:"Pending Analysis", value:fslCases.length, icon:Clock, color:"text-amber-600", bg:"bg-amber-50 dark:bg-amber-950/40" },
+    { label:"FSL Reports", value:fslReports, icon:CheckCircle2, color:"text-emerald-600", bg:"bg-emerald-50 dark:bg-emerald-950/40" },
+    { label:"Assigned Cases", value:fslCases.length, icon:TestTube2, color:"text-purple-600", bg:"bg-purple-50 dark:bg-purple-950/40" },
+    { label:"Critical Pending", value:fslCases.filter(c => c.priority === "critical").length, icon:FlaskConical, color:"text-red-600", bg:"bg-red-50 dark:bg-red-950/40" },
   ];
   return (
     <DashboardLayout>
@@ -28,7 +30,7 @@ export default function FSLDashboardPage() {
           </div>
           <button onClick={() => navigate(ROUTES.DOCUMENTS)}
             className="inline-flex items-center gap-2 rounded-lg bg-purple-600 hover:bg-purple-700 px-4 py-2 text-xs font-bold text-white transition-colors">
-            <CheckCircle2 className="h-3.5 w-3.5" /> Submit Report
+            <CheckCircle2 className="h-3.5 w-3.5" /> Review FSL Reports
           </button>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -49,14 +51,14 @@ export default function FSLDashboardPage() {
             <button onClick={() => navigate(ROUTES.CASES)} className="text-xs text-[hsl(var(--primary))] hover:underline flex items-center gap-1">View all <ArrowRight className="h-3 w-3" /></button>
           </div>
           <div className="divide-y divide-border">
-            {CASES.filter(c => c.currentStageOrder >= 5 && c.currentStageOrder <= 7).slice(0,5).map(c => (
-              <div key={c.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/40 transition-colors">
+            {fslCases.slice(0,5).map(c => (
+              <button key={c.id} onClick={() => navigate(`/cases/${c.id}`)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left hover:bg-muted/40 transition-colors">
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-mono font-semibold text-[hsl(var(--primary))]">{c.caseNumber.split("/").pop()}</p>
                   <p className="text-xs text-muted-foreground">{c.currentStage} · {c.district}</p>
                 </div>
                 <StatusBadge variant={c.priority === "critical" ? "danger" : "warning"} size="xs">{c.priority}</StatusBadge>
-              </div>
+              </button>
             ))}
           </div>
         </div>

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, Edit, Share2, MoreHorizontal,
+  ArrowLeft, ExternalLink,
   MapPin, Calendar, User, FileText, AlertTriangle,
   CheckCircle2, Clock, ChevronRight, Shield,
 } from "lucide-react";
@@ -11,8 +11,7 @@ import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
 import { Avatar } from "@/components/ui/feedback/Avatar";
 import { ProgressBar } from "@/components/ui/feedback/ProgressBar";
 import { cn } from "@/lib/utils";
-import { CASES } from "@/data/cases.data";
-import { OFFICERS } from "@/data/officers.data";
+import { caseService } from "@/services/caseService";
 import { ROUTES } from "@/router/routes";
 import { STATUS_LABEL, STATUS_BADGE, PRIORITY_LABEL, PRIORITY_BADGE, CRIME_LABEL } from "@/utils/case.utils";
 import { formatDate, formatRelativeTime } from "@/utils/format";
@@ -32,22 +31,49 @@ export default function CaseDetailPage() {
   const { caseId } = useParams<{ caseId: string }>();
   const navigate   = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
-  const [caseData, setCaseData]   = useState<InvestigationCase | undefined>(() => CASES.find(c => c.id === caseId));
+  const [caseData, setCaseData]   = useState<InvestigationCase>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showAssign, setShowAssign] = useState(false);
 
-  if (!caseData) {
+  useEffect(() => {
+    if (!caseId) return;
+    setLoading(true);
+    caseService.getById(caseId)
+      .then(response => setCaseData(response.data))
+      .catch((err: { message?: string; statusCode?: number }) => {
+        setError(err.statusCode === 401 ? "Your session has expired. Please sign in again." : err.statusCode === 403 ? "You are not authorized to view this case." : err.statusCode === 404 ? "Case not found." : err.message ?? "Unable to load this case from the backend.");
+      })
+      .finally(() => setLoading(false));
+  }, [caseId]);
+
+  if (loading) {
+    return <DashboardLayout><div className="py-16 text-center text-sm text-muted-foreground">Loading live case…</div></DashboardLayout>;
+  }
+
+  if (!caseData || error) {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <AlertTriangle className="h-12 w-12 text-amber-400" />
-          <p className="text-lg font-semibold text-foreground">Case not found</p>
+          <p className="text-lg font-semibold text-foreground">{error ?? "Case not found"}</p>
           <button onClick={() => navigate(ROUTES.CASES)} className="text-sm text-[hsl(var(--primary))] hover:underline">← Back to Cases</button>
         </div>
       </DashboardLayout>
     );
   }
 
-  const officer = OFFICERS.find(o => o.id === caseData.assignedOfficerId);
+  const officer = caseData.assignedOfficer ? {
+    id: caseData.assignedOfficerId,
+    name: caseData.assignedOfficer,
+    designation: "Assigned Officer",
+    station: caseData.assignedStation,
+    badge: "",
+    phone: "",
+    email: "",
+    department: "police" as const,
+    activeCases: 0,
+  } : undefined;
   const progress = Math.round((caseData.currentStageOrder / caseData.totalStages) * 100);
 
   return (
@@ -88,15 +114,6 @@ export default function CaseDetailPage() {
               <button onClick={() => setShowAssign(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium hover:bg-muted transition-colors">
                 <User className="h-3.5 w-3.5" /> Assign Officer
               </button>
-              <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium hover:bg-muted transition-colors">
-                <Share2 className="h-3.5 w-3.5" /> Share
-              </button>
-              <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium hover:bg-muted transition-colors">
-                <Edit className="h-3.5 w-3.5" /> Edit
-              </button>
-              <button className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
-                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-              </button>
             </div>
           </div>
 
@@ -109,6 +126,22 @@ export default function CaseDetailPage() {
             <ProgressBar value={progress} color={caseData.priority === "critical" ? "danger" : caseData.priority === "high" ? "warning" : "primary"} size="md" />
           </div>
         </motion.div>
+
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
+          <span className="mr-2 text-xs font-semibold text-muted-foreground">Case workspace</span>
+          {[
+            ["Workflow", () => setActiveTab("Workflow" as Tab)],
+            ["Procedural Graph", () => setActiveTab("Graph" as Tab)],
+            ["Evidence", () => setActiveTab("Documents" as Tab)],
+            ["Risk", () => setActiveTab("Procedural Risk" as Tab)],
+            ["Audit Trail", () => navigate(ROUTES.AUDIT)],
+            ["AI Assistant", () => navigate(ROUTES.AI_ASSISTANT)],
+          ].map(([label, action]) => (
+            <button key={label as string} onClick={action as () => void} className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              {label as string}<ExternalLink className="h-3 w-3" />
+            </button>
+          ))}
+        </div>
 
         {/* Tabs */}
         <div className="flex items-center gap-0 overflow-x-auto no-scrollbar border-b border-border">
@@ -131,7 +164,7 @@ export default function CaseDetailPage() {
           {activeTab === "History"     && <HistoryTab caseData={caseData} />}
           {activeTab === "Procedural Risk" && (
             <div className="space-y-6">
-              <LiveRiskDashboard caseId={caseData.id} assignedOfficerId={caseData.assignedOfficerId} />
+              <LiveRiskDashboard caseId={caseData.id} />
               <RiskHistoryChart caseId={caseData.id} />
             </div>
           )}
@@ -146,7 +179,15 @@ export default function CaseDetailPage() {
 }
 
 // ─── Overview Tab ─────────────────────────────────────────────────────────────
-function OverviewTab({ c, officer }: { c: InvestigationCase; officer: ReturnType<typeof OFFICERS.find> }) {
+function OverviewTab({ c, officer }: { c: InvestigationCase; officer?: {
+  name: string;
+  designation: string;
+  station: string;
+  badge: string;
+  phone: string;
+  department: string;
+  activeCases: number;
+} }) {
   const infoItems = [
     { label: "Case Number",    value: c.caseNumber },
     { label: "FIR Number",     value: c.firNumber },

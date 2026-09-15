@@ -64,7 +64,7 @@ export function RiskHistoryChart({ caseId }: Props) {
               contentStyle={{ backgroundColor: "hsl(var(--card))", borderColor: "hsl(var(--border))", borderRadius: "8px" }}
               itemStyle={{ color: "hsl(var(--foreground))" }}
               labelStyle={{ color: "hsl(var(--muted-foreground))", marginBottom: "4px" }}
-              formatter={(value: number, name: string, props: any) => [`${value} (${props.payload.level})`, "Score"]}
+              formatter={(value: number, _name: string, props: any) => [`${value} (${props.payload.level})`, "Score"]}
             />
             <Area type="monotone" dataKey="score" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorScore)" strokeWidth={2} />
           </AreaChart>

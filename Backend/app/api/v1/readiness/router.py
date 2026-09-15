@@ -19,7 +19,7 @@ router = APIRouter()
 @router.get("/cases/{case_id}", response_model=ApiResponse[CourtReadinessOut], dependencies=[Depends(require_access_token)])
 async def get_case_readiness(case_id: UUID, db: AsyncSession = Depends(get_db)) -> dict:
     result = await db.execute(
-        select(CourtReadiness).where(CourtReadiness.case_id == case_id).order_by(CourtReadiness.created_at.desc()).limit(1)
+        select(CourtReadiness).where(CourtReadiness.caseId == case_id).order_by(CourtReadiness.createdAt.desc()).limit(1)
     )
     readiness = result.scalars().first()
     if not readiness:

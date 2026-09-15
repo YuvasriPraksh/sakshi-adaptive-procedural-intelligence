@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Bell, Search, Sun, Moon, Monitor, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,7 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
   const { currentUser }                    = useUser();
   const { user }                           = useAuth();
   const navigate                           = useNavigate();
+  const location                           = useLocation();
 
   const [searchOpen,  setSearchOpen]  = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,6 +36,16 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
   const ThemeIcon  = THEME_ICONS[theme];
   const nextTheme  = resolvedTheme === "dark" ? "light" : "dark";
   const displayUser = currentUser ?? user;
+  const currentModule = location.pathname.startsWith(ROUTES.CASES.split(":")[0]) ? "Case Management"
+    : location.pathname.startsWith(ROUTES.GRAPH.split(":")[0]) ? "Procedural Graph"
+    : location.pathname.startsWith(ROUTES.EVIDENCE.split(":")[0]) ? "Evidence"
+    : location.pathname.startsWith(ROUTES.AUDIT) ? "Audit Trail"
+    : location.pathname.startsWith(ROUTES.NOTIFICATIONS) ? "Notifications"
+    : location.pathname.startsWith(ROUTES.ANALYTICS) ? "Analytics"
+    : location.pathname.startsWith(ROUTES.REPORTS) ? "Reports"
+    : location.pathname.startsWith(ROUTES.AI_ASSISTANT) ? "AI Assistant"
+    : location.pathname.startsWith(ROUTES.DASHBOARD) ? "Dashboard"
+    : "SAKSHI";
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -66,7 +77,8 @@ export function TopNav({ onMobileMenuToggle, className }: TopNavProps) {
 
       {/* Page title slot — grows to fill */}
       <div className="flex-1 min-w-0 hidden sm:block">
-        <div id="topnav-breadcrumb" />
+        <p className="text-xs font-semibold text-slate-100 truncate">{currentModule}</p>
+        <p className="text-2xs text-slate-500 truncate">SAKSHI operational portal</p>
       </div>
 
       {/* ── Right actions ── */}

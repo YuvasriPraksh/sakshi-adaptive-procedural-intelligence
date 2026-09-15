@@ -84,7 +84,7 @@ export const REPORTS: ReportCard[] = [
   },
   {
     id:"r6", title:"Audit Trail Report", category:"audit", status:"ready",
-    description:"Complete tamper-proof activity log for all system actions across all modules.",
+    description:"Complete traceable activity log for system actions across all modules.",
     generatedAt:"2024-02-20T12:00:00Z", period:"Jan–Feb 2024", recordCount:487, icon:"clipboard", color:"bg-slate-50 text-slate-600 border-slate-200",
     previewHeaders:["Timestamp","User","Action","Module","Status"],
     previewRows:[

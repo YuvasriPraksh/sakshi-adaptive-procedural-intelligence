@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/context/UserContext";
+import { useAuth } from "@/context/AuthContext";
 import { Tooltip } from "@/components/ui/feedback/Tooltip";
 import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
 import { ICON_MAP } from "@/constants/icons";
@@ -29,6 +30,24 @@ export const SETTINGS_NAV: NavItem[] = [
   { label: "Settings", href: ROUTES.SETTINGS, icon: "settings"    },
   { label: "Profile",  href: ROUTES.PROFILE,  icon: "supervisor"  },
 ];
+
+const ROLE_NAV: Record<string, string[]> = {
+  admin:      ["Dashboard", "Cases", "Analytics", "Reports", "Audit Trail", "Notifications"],
+  police:     ["Dashboard", "Cases", "Proc. Graph", "Evidence", "Notifications", "AI Assistant", "Audit Trail"],
+  supervisor: ["Dashboard", "Cases", "Analytics", "Reports", "Audit Trail", "Notifications", "Proc. Graph", "AI Assistant"],
+  fsl:        ["Dashboard", "Cases", "Evidence", "Reports", "Notifications"],
+  hospital:   ["Dashboard", "Cases", "Evidence", "Notifications"],
+  cwc:        ["Dashboard", "Cases", "Proc. Graph", "Notifications"],
+};
+
+const ROLE_DASHBOARD: Record<string, string> = {
+  admin: ROUTES.SUPERVISOR_DASHBOARD,
+  police: ROUTES.POLICE_DASHBOARD,
+  supervisor: ROUTES.SUPERVISOR_DASHBOARD,
+  fsl: ROUTES.FSL_DASHBOARD,
+  hospital: ROUTES.HOSPITAL_DASHBOARD,
+  cwc: ROUTES.CWC_DASHBOARD,
+};
 
 // ─── Single nav item ───────────────────────────────────────────────────────────
 interface SidebarItemProps {
@@ -150,7 +169,14 @@ export interface SidebarProps {
 
 export function Sidebar({ unreadNotifications = 0 }: SidebarProps) {
   const { preferences, toggleSidebar } = useUser();
+  const { user } = useAuth();
   const collapsed = preferences.sidebarCollapsed;
+  const visibleLabels = ROLE_NAV[user?.role ?? ""] ?? ["Dashboard"];
+  const visibleMainNav = MAIN_NAV
+    .filter(item => visibleLabels.includes(item.label))
+    .map(item => item.label === "Dashboard" && user?.role && ROLE_DASHBOARD[user.role]
+      ? { ...item, href: ROLE_DASHBOARD[user.role] }
+      : item);
 
   return (
     <motion.aside
@@ -191,7 +217,7 @@ export function Sidebar({ unreadNotifications = 0 }: SidebarProps) {
         aria-label="Main menu"
       >
         <NavGroup label="Main" collapsed={collapsed}>
-          {MAIN_NAV.map(item => (
+          {visibleMainNav.map(item => (
             <SidebarItem
               key={item.href}
               item={item}

@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Shield, Search, Filter, Download, ChevronDown,
+  Shield, Search, Filter, ChevronDown,
   CheckCircle2, AlertTriangle, XCircle, Info,
   FolderOpen, GitBranch, FileText, BrainCircuit,
   Lock, Users, BarChart3, Bell, Settings,
@@ -101,9 +101,6 @@ export default function AuditPage() {
     });
   }, [search, moduleFilter, statusFilter, userFilter, entries]);
 
-  // Ideally this comes from the backend API directly to avoid client side pagination of only the first page
-  const displayEntries = entries;
-
   const stats = {
     total:   entries.length,
     success: entries.filter(e=>e.status==="success").length,
@@ -119,7 +116,7 @@ export default function AuditPage() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Audit Trail</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Tamper-proof activity log · {stats.total} total events
+              Traceable activity log · {stats.total} total events
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -139,9 +136,6 @@ export default function AuditPage() {
             >
               <Shield className="h-3.5 w-3.5" /> {verifying ? "Verifying..." : "Verify Chain"}
             </button>
-            <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors">
-              <Download className="h-3.5 w-3.5" /> Export
-            </button>
           </div>
         </div>
 
@@ -149,7 +143,7 @@ export default function AuditPage() {
           <div className={cn("p-4 rounded-lg border", verificationResult.valid ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-red-50 border-red-200 text-red-800")}>
             <div className="flex items-center gap-2 mb-2">
               {verificationResult.valid ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
-              <h3 className="font-bold">{verificationResult.valid ? "Audit Chain Verified" : "Audit Chain Tampered!"}</h3>
+              <h3 className="font-bold">{verificationResult.valid ? "VERIFIED" : "TAMPER DETECTED"}</h3>
             </div>
             <p className="text-sm">{verificationResult.message}</p>
             <div className="mt-2 text-xs flex gap-4">
@@ -195,9 +189,9 @@ export default function AuditPage() {
         {loading ? (
            <div className="py-20 text-center"><p className="text-muted-foreground">Loading audit logs...</p></div>
         ) : viewMode === "timeline" ? (
-          <TimelineView entries={displayEntries} />
+          <TimelineView entries={filtered} />
         ) : (
-          <TableView entries={displayEntries} />
+          <TableView entries={filtered} />
         )}
 
         {/* Pagination */}
@@ -224,7 +218,7 @@ function TimelineView({ entries }: { entries: AuditEntry[] }) {
       <div className="absolute left-[31px] top-0 bottom-0 w-0.5 bg-border" />
       <div className="space-y-1">
         {entries.map((entry, i) => {
-          const mod = MODULE_CONFIG[entry.module];
+          const mod = MODULE_CONFIG[entry.module as AuditModule] ?? MODULE_CONFIG.cases;
           const st  = STATUS_CONFIG[entry.status];
           const ModIcon = mod.icon;
           return (
@@ -289,7 +283,7 @@ function TableView({ entries }: { entries: AuditEntry[] }) {
             ) : (
               entries.map((entry, i) => {
                 const st = STATUS_CONFIG[entry.status];
-                const mod = MODULE_CONFIG[entry.module];
+                const mod = MODULE_CONFIG[entry.module as AuditModule] ?? MODULE_CONFIG.cases;
                 const ModIcon = mod.icon;
                 return (
                   <motion.tr key={entry.id} initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:i*0.03 }}

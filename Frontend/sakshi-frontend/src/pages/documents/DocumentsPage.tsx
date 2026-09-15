@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FileText, Search, Filter, ChevronDown, Download, Eye, Trash2, Upload } from "lucide-react";
+import { FileText, Search, Filter, ChevronDown, Trash2, ExternalLink } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatusBadge }     from "@/components/ui/feedback/StatusBadge";
 import { CASES }           from "@/data/cases.data";
@@ -20,6 +21,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function DocumentsPage() {
+  const navigate = useNavigate();
   const [search,   setSearch]  = useState("");
   const [typeFilter,setTypeFilter]= useState("");
   const [docs, setDocs]        = useState<DocWithCase[]>(() =>
@@ -45,9 +47,6 @@ export default function DocumentsPage() {
             <h1 className="text-2xl font-bold text-foreground">Documents</h1>
             <p className="text-sm text-muted-foreground mt-0.5">All case documents across the platform · {docs.length} total</p>
           </div>
-          <button className="inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 px-4 py-2 text-xs font-bold text-white transition-colors shadow-sm">
-            <Upload className="h-3.5 w-3.5" /> Upload Document
-          </button>
         </div>
 
         {/* Stats */}
@@ -117,8 +116,9 @@ export default function DocumentsPage() {
                       <td className="px-4 py-3 text-xs text-muted-foreground">{doc.size}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Preview"><Eye className="h-3.5 w-3.5" /></button>
-                          <button className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Download"><Download className="h-3.5 w-3.5" /></button>
+                          <button onClick={() => navigate(`/cases/${doc.caseId}`)} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-2xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors" title="Open case">
+                            <ExternalLink className="h-3 w-3" /> Case
+                          </button>
                           <button onClick={() => handleDelete(doc.id)} className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/30 text-muted-foreground hover:text-red-500 transition-colors" title="Delete"><Trash2 className="h-3.5 w-3.5" /></button>
                         </div>
                       </td>

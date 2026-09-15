@@ -76,7 +76,7 @@ export default function EvidenceSecurityPage() {
             <div className="space-y-4 text-sm text-muted-foreground">
               <p>All evidence assets are encrypted at rest and verified periodically using SHA-256 integrity checks.</p>
               <p>Unauthorized access attempts are logged and alerted to supervisory officers in real time.</p>
-              <p>Cross-agency transfers use tamper-proof digital signatures and chain-of-custody health indicators.</p>
+              <p>Cross-agency transfers use digital signatures and chain-of-custody health indicators.</p>
             </div>
           </motion.div>
         </div>

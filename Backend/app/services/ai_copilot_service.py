@@ -133,7 +133,7 @@ def _generate_deterministic_fallback(context: Dict[str, Any], user_message: str,
     missing = context.get("missingOrPendingItems", [])
 
     # Guardrail Check for out-of-scope / judicial questions
-    out_of_scope_keywords = ["who is guilty", "is the accused guilty", "guilty or innocent", "credibility", "should we arrest", "grant bail", "sentence length"]
+    out_of_scope_keywords = ["who is guilty", "is the accused guilty", "considered guilty", "guilty or innocent", "credibility", "should we arrest", "grant bail", "sentence length"]
     if any(k in msg_lower for k in out_of_scope_keywords):
         return {
             "summary": "SAKSHI is an operational and procedural decision-support system. It does not assess guilt, determine witness credibility, or recommend judicial outcomes such as arrest, bail, or sentencing.",

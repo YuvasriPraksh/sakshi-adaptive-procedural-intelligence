@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/ui/feedback/StatusBadge";
 import { PageSpinner } from "@/components/ui/feedback/Spinner";
 import { cn } from "@/lib/utils";
 import { riskService } from "@/services/riskService";
-import type { RiskAssessment, RiskFactor } from "@/types/risk.types";
+import type { RiskAssessment } from "@/types/risk.types";
 import { formatDate } from "@/utils/format";
 
 const RISK_CONFIG = {
@@ -30,7 +30,7 @@ function impactToSeverity(impact: string): { label: string; badge: "danger" | "w
 
 interface Props { caseId: string; assignedOfficerId?: string }
 
-export function LiveRiskDashboard({ caseId, assignedOfficerId }: Props) {
+export function LiveRiskDashboard({ caseId }: Props) {
   const [risk, setRisk] = useState<RiskAssessment | null>(null);
   const [loading, setLoading] = useState(true);
   const [computing, setComputing] = useState(false);

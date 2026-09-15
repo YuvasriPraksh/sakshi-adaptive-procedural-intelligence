@@ -13,6 +13,7 @@ from app.api.v1.audit.router import router as audit_router
 from app.api.v1.cases.router import router as cases_router
 from app.api.v1.evidence.router import router as evidence_router
 from app.api.v1.notifications.router import router as notifications_router
+from app.api.v1.passports.router import router as passports_router
 from app.api.v1.public.router import router as public_router
 from app.api.v1.readiness.router import router as readiness_router
 from app.api.v1.reports.router import router as reports_router
@@ -32,6 +33,7 @@ api_router.include_router(analytics_router, prefix="/analytics", tags=["Analytic
 api_router.include_router(ai_router, prefix="/ai", tags=["AI"])
 api_router.include_router(audit_router, prefix="/audit", tags=["Audit"])
 api_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
+api_router.include_router(passports_router, prefix="/passports", tags=["Passports"])
 api_router.include_router(readiness_router, prefix="/readiness", tags=["Readiness"])
 api_router.include_router(reports_router, prefix="/reports", tags=["Reports"])
 api_router.include_router(risk_router, prefix="/risk", tags=["Risk"])

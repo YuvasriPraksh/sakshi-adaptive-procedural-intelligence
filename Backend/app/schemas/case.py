@@ -50,7 +50,7 @@ class CaseBase(BaseModel):
     currentStage: Optional[str] = "Registration"
     currentStageOrder: Optional[int] = 1
     totalStages: Optional[int] = 1
-    assignedOfficerId: Optional[str] = None
+    assignedOfficerId: Optional[UUID] = None
     assignedOfficer: Optional[str] = None
     assignedStation: Optional[str] = None
     remarks: Optional[str] = None
@@ -79,7 +79,7 @@ class CaseUpdate(BaseModel):
     currentStage: Optional[str] = None
     currentStageOrder: Optional[int] = None
     totalStages: Optional[int] = None
-    assignedOfficerId: Optional[str] = None
+    assignedOfficerId: Optional[UUID] = None
     assignedOfficer: Optional[str] = None
     assignedStation: Optional[str] = None
     remarks: Optional[str] = None

@@ -8,6 +8,8 @@ import { Sidebar } from "@/components/navigation/Sidebar";
 import { TopNav } from "@/components/navigation/TopNav";
 import { Footer } from "@/components/navigation/Footer";
 import { ToastContainer } from "@/components/ui/feedback/Toast";
+import { Breadcrumb } from "@/components/ui/feedback/Breadcrumb";
+import { ROUTES } from "@/router/routes";
 
 export interface DashboardLayoutProps {
   children:   ReactNode;
@@ -26,6 +28,16 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
   const { unreadCount }  = useNotifications();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const pathLabel = location.pathname.startsWith(ROUTES.CASES.split(":")[0]) ? "Cases"
+    : location.pathname.startsWith(ROUTES.GRAPH.split(":")[0]) ? "Procedural Graph"
+    : location.pathname.startsWith(ROUTES.EVIDENCE.split(":")[0]) ? "Evidence"
+    : location.pathname.startsWith(ROUTES.AUDIT) ? "Audit Trail"
+    : location.pathname.startsWith(ROUTES.NOTIFICATIONS) ? "Notifications"
+    : location.pathname.startsWith(ROUTES.ANALYTICS) ? "Analytics"
+    : location.pathname.startsWith(ROUTES.REPORTS) ? "Reports"
+    : location.pathname.startsWith(ROUTES.AI_ASSISTANT) ? "AI Assistant"
+    : location.pathname.startsWith(ROUTES.DASHBOARD) ? "Dashboard"
+    : "Workspace";
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -87,6 +99,7 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
             className,
           )}
         >
+          <Breadcrumb items={[{ label: pathLabel }]} className="mb-4" />
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={location.pathname}
